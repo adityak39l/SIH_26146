@@ -8,8 +8,10 @@ env/
 .venv/
 data/raw/*
 !data/raw/sample_transactions.json
+!data/raw/demo/
 data/models/*.pkl
 data/models/*.pt
 data/geoip/*.mmdb
+output/
 *.log
 .DS_Store

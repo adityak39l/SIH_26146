@@ -4,7 +4,7 @@ set -e
 
 echo "=========================================================="
 echo " VIGIL-CHAIN: AI-Powered Bitcoin Traffic Intelligence"
-echo " National Technical Research Organisation (NTRO) - SIH 2026"
+echo " SIH 2026 - Problem Statement 26146"
 echo " (Running in 100% Air-Gapped Offline Mode)"
 echo "=========================================================="
 
@@ -14,8 +14,11 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-echo "[*] Initializing offline pipeline demo..."
+echo "[*] Running offline pipeline on data/raw/demo ..."
 python3 -m src.pipeline.engine
 
-echo "[*] Launching Offline Analyst Dashboard & API at http://127.0.0.1:8000"
-uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload
+echo "[*] Building standalone analyst console (docs/index.html) ..."
+python3 -m src.pipeline.export
+
+echo "[*] Launching Offline Analyst Console & API at http://127.0.0.1:8000"
+python3 -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000

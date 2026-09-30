@@ -1,29 +1,15 @@
-# Core Scientific & Data Processing
-polars>=0.20.0
-duckdb>=0.10.0
-pandas>=2.2.0
+# Analysis pipeline: NumPy is the only hard dependency. Isolation Forest, GraphSAGE and
+# the Shapley attributions are implemented on it directly, so an air-gapped install
+# needs very few wheels.
 numpy>=1.26.0
 
-# Graph Analytics & Network Forensics
-networkx>=3.2.0
-rustworkx>=0.14.0
-
-# Machine Learning & Explainable AI (XAI)
-scikit-learn>=1.4.0
-xgboost>=2.0.0
-shap>=0.45.0
-
-# Offline IP & Geo Enrichment
-geoip2>=4.8.0
-maxminddb>=2.6.0
-
-# API & Web Interface
+# Analyst console & REST API
 fastapi>=0.110.0
-uvicorn[standard]>=0.28.0
-pydantic>=2.6.0
-python-multipart>=0.0.9
+uvicorn>=0.28.0
 
-# Testing & Utilities
-pytest>=8.0.0
-requests>=2.31.0
-tqdm>=4.66.0
+# Optional: MaxMind GeoLite2 .mmdb lookups (the bundled CIDR table is used otherwise).
+# Uncomment after placing GeoLite2-City.mmdb and GeoLite2-ASN.mmdb in data/geoip/.
+# maxminddb>=2.6.0
+
+# Only needed by the API tests
+httpx>=0.27.0

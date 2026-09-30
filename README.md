@@ -1,106 +1,126 @@
 # VIGIL-CHAIN: AI-Powered Monitoring & Analysis of Bitcoin Transaction Traffic
 
-[![Smart India Hackathon 2026](https://img.shields.io/badge/SIH-2026-blue.svg)](https://sih.gov.in)
-[![Challenge ID](https://img.shields.io/badge/Challenge-SIH26146-emerald.svg)](https://sih.gov.in/sih2026PS)
-[![Sponsoring Agency](https://img.shields.io/badge/Sponsor-NTRO-red.svg)](https://ntro.gov.in)
-[![Platform](https://img.shields.io/badge/Platform-100%25%20Offline%20Linux-black.svg)](#)
-
-> **Official Solution for Smart India Hackathon 2026 — Challenge #146**  
-> **Sponsoring Agency:** National Technical Research Organisation (NTRO), Prime Minister's Office (PMO) / NSA, Govt. of India.  
-> **Domain:** Blockchain & Cybersecurity (Software Edition)
+> **Smart India Hackathon 2026 — Problem Statement 26146** (Blockchain & Cybersecurity, software edition; problem posed by NTRO).
+> This is a student prototype. It is not an official system of any agency, and every transaction in this repository is synthetic.
 
 ---
 
-## 1. Problem Overview
-Bitcoin's pseudonymous, peer-to-peer (P2P) architecture enables criminal syndicates, ransomware cartels, and money launderers to obscure asset trails. 
+## 1. The problem
 
-Current signals intelligence faces a **Dual-Layer Blindspot**:
-* **Network Layer:** Observes physical IPs, ports, and timestamps, but cannot attribute transaction hashes or wallet ownership.
-* **Blockchain Layer:** Observes UTXOs, amounts, and wallet addresses, but cannot pinpoint physical origin nodes.
+Two groups of tools each see half of a Bitcoin transaction:
 
-**NTRO Objective:** Build a **complete offline Linux system** that ingests bulk metadata (CSV/JSON/XML), correlates **network-layer observations (IP/port/timing)** with **blockchain-layer data (wallet/TXID/amount)**, and applies **real AI/ML models** (not just rules) to detect anomalies, cluster entities, and generate **explainable investigative leads**.
+| Layer | Sees | Cannot see |
+|---|---|---|
+| **Network** (P2P capture) | IP, port, timestamp of each announcement | which wallets and amounts are involved |
+| **Blockchain** (ledger) | wallets, amounts, transaction graph | which machine sent it |
 
----
+The task is an **offline Linux system** that ingests bulk metadata (CSV/JSON/XML), joins the two layers, applies **real ML rather than fixed rules**, and produces **explainable investigative leads**.
 
-## 2. System Architecture
+## 2. What the system does
 
 ```
-+-------------------------------------------------------------------------------+
-|                        OFFLINE INGESTION & ENRICHMENT                         |
-|   Bulk CSV/JSON/XML Metadata  -->  Columnar Parser  -->  MaxMind GeoIP2/ASN   |
-+---------------------------------------+---------------------------------------+
-                                        |
-                                        v
-+-------------------------------------------------------------------------------+
-|                     CORRELATION & GRAPH RESOLUTION ENGINE                     |
-|   * Earliest P2P Diffusion Correlator    * Common-Input Ownership Clustering  |
-|   * Multi-hop Peeling Chain Detector     * Heterogeneous Directed Graph       |
-+---------------------------------------+---------------------------------------+
-                                        |
-                                        v
-+-------------------------------------------------------------------------------+
-|                        DUAL-STAGE AI/ML ANALYTICS ENGINE                      |
-|   Stage 1: Isolation Forest (Anomaly)  |  Stage 2: Graph Neural Networks (GNN)|
-+---------------------------------------+---------------------------------------+
-                                        |
-                                        v
-+-------------------------------------------------------------------------------+
-|                      EXPLAINABLE AI (XAI) & DOSSIER TRIAGE                    |
-|   SHAP Feature Attributions  -->  Automated Court-Admissible Dossier Export   |
-+-------------------------------------------------------------------------------+
+ network_observations.csv ─┐
+                           ├─► join on TXID ─► first-seen origin + calibrated confidence ─┐
+ blockchain_transactions ──┘                                                              │
+        │                                                                                 ▼
+        └─► flow graph ─► entity clusters, peel chains, mixing ─► Isolation Forest ─► risk fusion ─► cases
+                                                                  GraphSAGE (GNN) ──┘   (exact Shapley)
 ```
 
----
+1. **Ingest** — CSV, JSON, JSON Lines and XML. The two layers arrive as separate files and are joined on the transaction ID. Every input file is hashed (SHA-256).
+2. **Attribute the origin** — the peer that announces a transaction first is its most likely origin. Three signals (lead time over the next announcer, agreement between sensors, how often that IP merely relays) give a **calibrated confidence**. Below 0.5 the origin is reported as *unresolved* instead of naming a relay.
+3. **Enrich offline** — country, ASN and network type (Tor exit / VPN / hosting / residential / exchange) from a bundled CIDR table, or MaxMind `.mmdb` files if present. No network calls anywhere.
+4. **Resolve entities** — common-input ownership clustering (union-find), skipped inside CoinJoin rounds where it would wrongly merge strangers. Multi-hop peeling chains, equal-output mixing and fan-out/fan-in are traced on the money-flow graph.
+5. **Score** — three models:
+   - **Isolation Forest** — unsupervised outlier score.
+   - **GraphSAGE** — a 2-layer graph neural network that reads each transaction with the transactions that fund it and spend it, kept in separate directions.
+   - **Risk fusion** — logistic regression over the GNN, the Isolation Forest and the network-layer evidence.
+6. **Explain** — the fusion model is linear, so each signal's **Shapley value is exact** (`w·(x − E[x])`), with no sampling. Every case shows what raised the score, what lowered it, what the GNN reacted to, where the money went, and a SHA-256 of the record.
+7. **Group into cases** — flagged transactions linked by money flow become one case, because an investigator works an operation, not a list of transactions.
 
-## 3. Directory Structure
+All three models are implemented directly on **NumPy** ([src/ml/](src/ml/)): no scikit-learn, PyTorch or SHAP package is needed, which keeps an air-gapped install to a handful of wheels and makes every line auditable. The GNN's hand-written backpropagation is checked against numerical gradients in the tests.
+
+## 3. Results on the demo capture
+
+The demo capture ([data/raw/demo/](data/raw/demo/)) has 633 transactions and 4,528 network observations; 99 transactions belong to simulated laundering operations. It was used for neither training nor tuning. Reproduce with `python -m src.pipeline.evaluate`.
+
+| Detector | Precision | Recall | F1 |
+|---|---|---|---|
+| Single-transaction peel rule (the first prototype) | 0.291 | 0.646 | 0.401 |
+| Isolation Forest alone | 0.121 | 0.121 | 0.121 |
+| GraphSAGE alone (blockchain layer only) | 0.714 | 0.859 | 0.780 |
+| **Fused risk score (both layers)** | **0.809** | **0.939** | **0.869** |
+
+- **Why fusion beats the GNN:** the simulation includes exchange hot-wallet withdrawals, which on-chain are indistinguishable from a laundering peel chain. Only the network layer separates them. That is the point of joining the two layers.
+- **Origin attribution:** the first-seen IP is the true origin for 89.3% of transactions. At confidence ≥ 0.75 it is right 98.8% of the time; below 0.5 it is right 8.5% of the time, which is why those are reported as unresolved.
+- **Operations recovered:** 8 of the 9 simulated operations land entirely in one case; the ninth is split (9 of 14 transactions in its main case).
+- The Isolation Forest is weak alone: laundering here is structured, not statistically extreme. It is kept as one signal among several.
+
+**Read these numbers correctly.** Training and test data come from the same simulator ([src/simulation/generator.py](src/simulation/generator.py)), with different seeds. They show the pipeline works end to end and that each stage adds something; they do not predict accuracy on real traffic.
+
+## 4. Quick start (offline)
+
+```bash
+pip install -r requirements.txt        # numpy, fastapi, uvicorn
+
+python -m src.pipeline.engine          # run the pipeline, print ranked cases, write output/leads.json
+python -m src.pipeline.evaluate        # metrics against ground truth
+python -m src.pipeline.export          # build docs/index.html (standalone console, opens from disk)
+python -m uvicorn src.api.main:app     # console + REST API at http://127.0.0.1:8000
+python -m unittest discover -s tests -t .
+```
+
+Or one click: `./run_offline.sh` (Linux) / `run_offline.bat` (Windows).
+
+To analyse your own capture, pass a file or a folder: `python -m src.pipeline.engine path/to/folder`.
+
+| Command | Purpose |
+|---|---|
+| `python -m src.simulation.generator --seed 7` | regenerate the demo capture |
+| `python -m src.pipeline.train` | retrain the models (about 20 s on a laptop CPU) |
+
+REST endpoints: `/` (console), `/api/summary`, `/api/cases`, `/api/cases/{id}`, `/api/leads`, `/api/status`, `POST /api/refresh`.
+
+### Input format
+
+**Network layer** (`.csv`): `timestamp, src_ip, src_port, dst_ip, dst_port, txid` — one row per announcement seen by a sensor (`dst_ip`).
+**Blockchain layer** (`.json`): `txid, input_addresses, output_addresses, input_amounts, output_amounts, fee, script_type`.
+A single file carrying both sets of fields per record also works ([data/raw/sample_transactions.json](data/raw/sample_transactions.json)). In CSV, list fields are `|`-separated.
+
+## 5. Repository layout
 
 ```text
-sih26146-vigil-chain/
-│
-├── config/             # Settings, paths, and risk thresholds
-├── data/
-│   ├── raw/            # Bulk input transaction files (CSV/JSON/XML)
-│   ├── geoip/          # Offline MaxMind GeoLite2 databases (.mmdb)
-│   └── models/         # Pre-trained model weights
-├── src/
-│   ├── ingestion/      # Streaming parser & offline GeoIP enrichment
-│   ├── correlation/    # P2P timing correlator & entity clustering
-│   ├── graph/          # Heterogeneous networkx graph constructor
-│   ├── ml/             # Anomaly detector (Isolation Forest) & GNN
-│   ├── pipeline/       # End-to-end intelligence execution engine
-│   └── api/            # FastAPI offline REST endpoints
-├── tests/              # Test suites
-├── Dockerfile          # Air-gapped Linux container configuration
-├── run_offline.sh      # Linux one-click execution script
-├── run_offline.bat     # Windows one-click execution script
-└── requirements.txt    # Pinned dependencies
+config/settings.py          paths and thresholds
+data/raw/demo/              synthetic two-layer demo capture
+data/eval/                  ground truth for the demo capture (never read by the pipeline)
+data/geoip/                 offline CIDR table; drop GeoLite2 .mmdb files here to use them
+data/models/                trained model bundle (.npz)
+src/ingestion/              parsers (CSV/JSON/JSONL/XML), offline geo/ASN enrichment
+src/correlation/            first-seen origin estimator, entity clustering, chain tracing
+src/graph/                  heterogeneous graph + transaction flow graph
+src/ml/                     Isolation Forest, GraphSAGE, risk fusion, Shapley explanations
+src/simulation/             synthetic traffic generator
+src/pipeline/               engine, training, evaluation, case building, console export
+src/dashboard/              analyst console template (single file, no external assets)
+src/api/                    FastAPI server
+docs/index.html             prebuilt console for static hosting
+tests/                      39 unit and end-to-end tests
 ```
 
----
+## 6. Limits
 
-## 4. Quick Start (100% Offline Execution)
+- **Simulated training data.** No public dataset joins P2P announcements to labelled transactions. Before any operational use the models need retraining on labelled real captures (the Elliptic dataset covers the blockchain layer).
+- **First-seen attribution is an estimate.** It needs sensors connected to a large share of the network, and Bitcoin Core deliberately randomises announcement timing. It cannot see through Tor or a VPN: it reports the exit, not the sender.
+- **A flag is not a finding.** CoinJoin is also used lawfully, and exchanges legitimately produce peel-chain shapes. Each output is a lead that must be corroborated; whether it is admissible as evidence is for a court to decide, not the software.
+- **Address-level linking.** The metadata carries addresses, not outpoints, so a spend is linked to the most recent earlier payment to that address.
+- **Scale.** The demo runs in under a second; the code is single-process and in-memory. Bulk captures in the tens of millions of rows need a columnar store and sparse batching.
+- **Offline table.** The bundled CIDR table is a small seed for the demo; it should be replaced by GeoLite2 plus a Tor exit-list snapshot taken before each air-gapped deployment.
 
-### On Linux:
-```bash
-chmod +x run_offline.sh
-./run_offline.sh
-```
+## 7. Roadmap
 
-### On Windows:
-```cmd
-run_offline.bat
-```
-
-### Running Manually:
-```bash
-pip install -r requirements.txt
-python -m src.pipeline.engine
-uvicorn src.api.main:app --reload
-```
-
----
-
-## 5. Key Innovations for NTRO Judges
-1. **100% Air-Gapped / Offline Guarantee:** Zero external network calls; everything runs locally in-memory.
-2. **Diffusion Tree Reversal:** Reconstructs the earliest P2P gossip broadcast to statistically attribute the origin IP.
-3. **Court-Admissible XAI:** Integrates SHAP attributions so law enforcement officers understand exactly why a transaction was flagged.
+1. Train on Elliptic / Elliptic++ labels and report results on real blockchain-layer data.
+2. Replace first-seen with a diffusion-model estimator (rumour centrality) that uses the full announcement order per sensor.
+3. Add change-address heuristics and cross-capture entity memory, so clusters persist between runs.
+4. Temporal GNN over a sliding window for streaming captures; DuckDB/Parquet ingestion for bulk scale.
+5. Signed dossiers (detached signature over the record hash) and an append-only audit log for chain of custody.
+6. An analyst feedback loop: confirmed and dismissed cases become training labels.
