@@ -1,0 +1,50 @@
+[
+  {
+    "timestamp": 1727680000.104,
+    "src_ip": "185.220.101.5",
+    "dst_ip": "198.51.100.22",
+    "src_port": 8333,
+    "dst_port": 8333,
+    "txid": "7a4bc19dfa82b45e89d13456789abcdef0123456789abcdef0123456789abcdef",
+    "input_addresses": ["1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", "12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"],
+    "output_addresses": ["3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy", "1HLoD9E4SDFFPDiYfNYnkBLQp5ED5KKSAt"],
+    "input_amounts": [5.00000000, 3.50000000],
+    "output_amounts": [0.45000000, 8.04950000],
+    "fee": 0.00050000,
+    "script_type": "P2PKH",
+    "geo_country": "NL",
+    "asn": "AS205100"
+  },
+  {
+    "timestamp": 1727680000.185,
+    "src_ip": "104.244.76.13",
+    "dst_ip": "198.51.100.22",
+    "src_port": 8333,
+    "dst_port": 8333,
+    "txid": "7a4bc19dfa82b45e89d13456789abcdef0123456789abcdef0123456789abcdef",
+    "input_addresses": ["1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", "12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"],
+    "output_addresses": ["3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy", "1HLoD9E4SDFFPDiYfNYnkBLQp5ED5KKSAt"],
+    "input_amounts": [5.00000000, 3.50000000],
+    "output_amounts": [0.45000000, 8.04950000],
+    "fee": 0.00050000,
+    "script_type": "P2PKH",
+    "geo_country": "US",
+    "asn": "AS14061"
+  },
+  {
+    "timestamp": 1727680005.420,
+    "src_ip": "185.220.101.5",
+    "dst_ip": "203.0.113.88",
+    "src_port": 8333,
+    "dst_port": 8333,
+    "txid": "9f2bc34dfe82b45e89d13456789abcdef0123456789abcdef0123456789abc111",
+    "input_addresses": ["1HLoD9E4SDFFPDiYfNYnkBLQp5ED5KKSAt"],
+    "output_addresses": ["3K88t1WpEZ73CNmQviecrnyiWrnqRhWN11", "1PeelChangeAddressXyZ99999999999999"],
+    "input_amounts": [8.04950000],
+    "output_amounts": [0.45000000, 7.59900000],
+    "fee": 0.00050000,
+    "script_type": "P2PKH",
+    "geo_country": "NL",
+    "asn": "AS205100"
+  }
+]

@@ -1,0 +1,29 @@
+# Core Scientific & Data Processing
+polars>=0.20.0
+duckdb>=0.10.0
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Graph Analytics & Network Forensics
+networkx>=3.2.0
+rustworkx>=0.14.0
+
+# Machine Learning & Explainable AI (XAI)
+scikit-learn>=1.4.0
+xgboost>=2.0.0
+shap>=0.45.0
+
+# Offline IP & Geo Enrichment
+geoip2>=4.8.0
+maxminddb>=2.6.0
+
+# API & Web Interface
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.6.0
+python-multipart>=0.0.9
+
+# Testing & Utilities
+pytest>=8.0.0
+requests>=2.31.0
+tqdm>=4.66.0
