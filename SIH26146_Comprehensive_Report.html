@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SIH 2026 Problem Statement 26146 - Comprehensive Analysis & Solution Blueprint</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 14mm 14mm 14mm;
+    @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 8pt;
+      color: #94a3b8;
+    }
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    background: #ffffff;
+    line-height: 1.5;
+    font-size: 9.5pt;
+  }
+  .header-container {
+    border-bottom: 2.5px solid #0284c7;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .tag-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .badge-tag {
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 8pt;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-org {
+    background: #0f172a;
+    color: #38bdf8;
+    font-size: 8pt;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+  }
+  h1 {
+    font-size: 17pt;
+    color: #0f172a;
+    line-height: 1.25;
+    font-weight: 800;
+    margin-top: 2px;
+  }
+  .subtitle {
+    font-size: 9.5pt;
+    color: #475569;
+    margin-top: 3px;
+    font-weight: 500;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .meta-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    padding: 6px 10px;
+    break-inside: avoid;
+  }
+  .meta-card .label {
+    font-size: 6.8pt;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .meta-card .value {
+    font-size: 8.8pt;
+    color: #0f172a;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  h2 {
+    font-size: 11.5pt;
+    color: #0f172a;
+    border-left: 3.5px solid #0284c7;
+    padding-left: 8px;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    font-weight: 700;
+    break-after: avoid;
+  }
+  h3 {
+    font-size: 10pt;
+    color: #0369a1;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    font-weight: 700;
+    break-after: avoid;
+  }
+  p {
+    margin-bottom: 6px;
+    text-align: justify;
+  }
+  ul, ol {
+    margin-left: 18px;
+    margin-bottom: 8px;
+  }
+  li {
+    margin-bottom: 3px;
+  }
+  .callout {
+    background: #f0f9ff;
+    border-left: 3.5px solid #0284c7;
+    padding: 8px 12px;
+    border-radius: 0 5px 5px 0;
+    margin: 8px 0;
+    font-size: 8.8pt;
+    break-inside: avoid;
+  }
+  .callout-title {
+    font-weight: 700;
+    color: #0369a1;
+    margin-bottom: 3px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 12px 0;
+    font-size: 8.2pt;
+    break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 5px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background-color: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 7.2pt;
+    letter-spacing: 0.4px;
+  }
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+  .architecture-box {
+    background: #0f172a;
+    color: #f8fafc;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 7.2pt;
+    line-height: 1.35;
+    white-space: pre;
+    overflow-x: hidden;
+    break-inside: avoid;
+    border: 1px solid #334155;
+  }
+  .pill {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 9999px;
+    font-size: 6.8pt;
+    font-weight: 600;
+  }
+  .pill-blue { background: #e0f2fe; color: #0369a1; }
+  .pill-green { background: #dcfce7; color: #15803d; }
+  .pill-amber { background: #fef3c7; color: #b45309; }
+  .pill-purple { background: #f3e8ff; color: #6b21a8; }
+  .section-block {
+    break-inside: avoid;
+    margin-bottom: 10px;
+  }
+  .footer {
+    margin-top: 14px;
+    padding-top: 6px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 7.2pt;
+    color: #94a3b8;
+    display: flex;
+    justify-content: space-between;
+    break-inside: avoid;
+  }
+</style>
+</head>
+<body>
+
+<div class="header-container">
+  <div class="tag-row">
+    <span class="badge-tag">Smart India Hackathon 2026</span>
+    <span class="badge-org">NTRO Challenge #146</span>
+    <span class="badge-tag" style="background:#059669;">Software Track</span>
+  </div>
+  <h1>AI-Powered Monitoring & Analysis of Bitcoin Transaction Traffic</h1>
+  <div class="subtitle">Complete Technical Brief, Forensic Deep Dive & End-to-End Offline Architecture Blueprint</div>
+</div>
+
+<div class="meta-grid">
+  <div class="meta-card">
+    <div class="label">Problem Statement Code</div>
+    <div class="value">SIH26146 (#146 of 236)</div>
+  </div>
+  <div class="meta-card">
+    <div class="label">Sponsoring Agency</div>
+    <div class="value">NTRO (PMO / NSA)</div>
+  </div>
+  <div class="meta-card">
+    <div class="label">Theme & Domain</div>
+    <div class="value">Blockchain & Cybersecurity</div>
+  </div>
+  <div class="meta-card">
+    <div class="label">Award & Platform</div>
+    <div class="value">₹ 1,00,000 / Linux (Offline)</div>
+  </div>
+</div>
+
+<h2>1. Executive Summary & Problem Context</h2>
+<p>
+  <strong>Problem Statement SIH26146</strong> is sponsored by the <strong>National Technical Research Organisation (NTRO)</strong>, India's premier technical intelligence organisation responsible for cyber intelligence, national cryptographic security, and forensic surveillance under the National Security Advisor (NSA) in the Prime Minister's Office.
+</p>
+<p>
+  <strong>The Core Threat:</strong> While Bitcoin provides an immutable, transparent public distributed ledger, its pseudonymous and peer-to-peer (P2P) architecture makes it the favored vehicle for cybercrime cartels, ransomware extortion syndicates, darknet narcotics vendors, and terror-financing networks. Malicious actors employ sophisticated obfuscation typologies—such as <em>CoinJoin mixing, recursive peeling chains, multi-hop burner wallets, and proxy/Tor tunnels</em>—to decouple real-world identities from transaction flows.
+</p>
+<p>
+  <strong>The Intelligence Blindspot:</strong> Traditional signals intelligence monitors <em>Network-Layer observations</em> (IP addresses, TCP ports, handshake latencies, Autonomous System Numbers), whereas traditional blockchain forensics only inspects <em>Blockchain-Layer records</em> (UTXOs, public wallet addresses, and transaction hashes). There is currently an operational void: <strong>how to bridge the gap between network-layer metadata and on-chain ledger activity without decrypting encrypted payloads?</strong>
+</p>
+<div class="callout">
+  <div class="callout-title">Official NTRO Challenge Objective</div>
+  Design and build a <strong>complete, workable offline system for Linux</strong> that ingests bulk Bitcoin transaction and network metadata (CSV, JSON, XML), correlates network-layer (IP/port/timing) observations with blockchain-layer (wallet/TXID/amount) data, and applies <strong>real AI/ML models</strong> (not just static if-else rules) to detect anomalies, cluster entities, and generate prioritized, explainable investigative leads with confidence scores.
+</div>
+
+<h2>2. Deep Problem Analysis: Key Architectural & Forensic Challenges</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:22%;">Challenge Area</th>
+      <th style="width:38%;">Technical Reality & Complexity</th>
+      <th style="width:40%;">Forensic / Hackathon Impact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>1. Network-Ledger Correlation</strong></td>
+      <td>Bitcoin nodes propagate transactions across a peer-to-peer gossip network using diffusion timers. Multiple nodes broadcast the same TXID at slightly different times. Pinpointing the actual entry node requires statistical diffusion tree reconstruction.</td>
+      <td>Investigators need reliable, probabilistic attribution linking a transaction hash to an originating IP address and physical Autonomous System (ASN).</td>
+    </tr>
+    <tr>
+      <td><strong>2. Laundering Typologies & Evasion</strong></td>
+      <td>Adversaries utilize peeling chains (breaking large funds into 100+ micro-hops) and CoinJoin/Whirlpool mixes (combining multiple inputs into identical outputs) to destroy graph linearity.</td>
+      <td>Simple rule-based thresholds fail and generate excessive false positives. System requires Graph Neural Networks (GNNs) capable of topological sub-graph pattern learning.</td>
+    </tr>
+    <tr>
+      <td><strong>3. 100% Offline Linux Operation</strong></td>
+      <td>NTRO mandates a <em>fully offline Linux solution</em>. No external API queries to Block Explorers, Chainalysis, or cloud endpoints are permitted.</td>
+      <td>All data parsing, entity clustering, GeoIP/ASN resolution, and ML inference must execute purely on local system memory and offline databases.</td>
+    </tr>
+    <tr>
+      <td><strong>4. Court-Admissible Explainability (XAI)</strong></td>
+      <td>A black-box neural network providing "Risk Score: 0.95" cannot be submitted as evidence for a legal seizure, judicial warrant, or inter-agency report.</td>
+      <td>The solution must provide transparent, feature-attributable reasons (via SHAP values, flow path graphs, and heuristic evidence flags).</td>
+    </tr>
+    <tr>
+      <td><strong>5. High-Throughput Bulk Ingestion</strong></td>
+      <td>Metadata arrives in massive, heterogeneous batches (CSV/JSON/XML) containing hundreds of thousands of transactions.</td>
+      <td>Requires high-speed streaming columnar parsers (Polars/DuckDB) to prevent memory crashes on standard workstation hardware.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. End-to-End System Architecture Blueprint</h2>
+<p>
+  The proposed architecture follows an offline, multi-tier intelligence pipeline designed to satisfy all NTRO constraints:
+</p>
+
+<div class="architecture-box">
++---------------------------------------------------------------------------------------------------------+
+|                                        DATA INGESTION &amp; ENRICHMENT                                      |
+|  [Bulk CSV/JSON/XML Files]  --&gt;  [Streaming Ingestion Engine]  --&gt;  [MaxMind GeoIP2 / ASN Offline DB]   |
++----------------------------------------------------+----------------------------------------------------+
+                                                     |
+                                                     v
++---------------------------------------------------------------------------------------------------------+
+|                                CORRELATION &amp; GRAPH RESOLUTION ENGINE                                    |
+|  * P2P Diffusion &amp; First-Seen IP Heuristic    * Common-Input Ownership Clustering                       |
+|  * Timing-Window Network Correlator           * Peeling Chain &amp; Change Address Heuristic                |
+|  -----------------------------------------------------------------------------------------------------  |
+|  Outputs: Heterogeneous Graph Nodes (IP, Wallet, TXID) &amp; Edges (Relayed_By, Sent_From, Transferred_To)   |
++----------------------------------------------------+----------------------------------------------------+
+                                                     |
+                                                     v
++---------------------------------------------------------------------------------------------------------+
+|                                    DUAL-STAGE AI/ML ANALYTICS ENGINE                                    |
+|   +-------------------------------------------+     +-----------------------------------------------+   |
+|   | Stage 1: Unsupervised Anomaly Detection   |     | Stage 2: Supervised Graph Neural Network (GNN)|   |
+|   | - Isolation Forest &amp; Robust Autoencoder   |     | - E-GraphSAGE / GCN on Transaction Subgraphs  |   |
+|   | - Volume Spikes, Rapid Bursts, Fee Outlier|     | - Classification: Illicit vs. Normal Transfer |   |
+|   +-------------------------------------------+     +-----------------------------------------------+   |
++----------------------------------------------------+----------------------------------------------------+
+                                                     |
+                                                     v
++---------------------------------------------------------------------------------------------------------+
+|                                EXPLAINABLE AI (XAI) &amp; TRIAGE DOSSIER                                    |
+|  * SHAP Values: Top 5 factors driving the risk score                                                    |
+|  * Automated Evidence Chain: Timestamp, Origin IP, ASN, Hop Handoffs, High-Risk Patterns                |
+|  * Composite Risk Scoring Matrix (0 to 100)                                                             |
++----------------------------------------------------+----------------------------------------------------+
+                                                     |
+                                                     v
++---------------------------------------------------------------------------------------------------------+
+|                             OFFLINE INVESTIGATIVE DASHBOARD &amp; VISUALIZER                                 |
+|  * Interactive Graph Canvas (Cytoscape.js)    * Ranked Alert Queue with Severity Badges                 |
+|  * Search by Wallet / TXID / IP / ASN         * One-Click PDF Evidence Report Export                    |
++---------------------------------------------------------------------------------------------------------+
+</div>
+
+<h2>4. Technical Deep-Dive: Core Modules</h2>
+
+<div class="section-block">
+  <h3>Module 1: High-Performance Offline Ingestion & Network Enrichment</h3>
+  <ul>
+    <li><strong>Streaming Multi-Format Ingestion:</strong> Utilizes <code>Polars</code> (Rust-backed columnar engine) or <code>DuckDB</code> for lightning-fast parsing of CSV, JSON, and XML metadata files without memory overflow.</li>
+    <li><strong>Offline GeoIP & ASN Resolution:</strong> Integrates local, offline MaxMind GeoLite2 City and ASN databases (<code>.mmdb</code> format). Every source/destination IP is enriched with ISO country codes, Autonomous System Numbers (ASN), and ISP identities without requiring an internet connection.</li>
+    <li><strong>Dataset Schema Handled:</strong>
+      <code>timestamp</code>, <code>src_ip</code>, <code>dst_ip</code>, <code>src_port</code>, <code>dst_port</code>, <code>txid</code>, <code>input_addresses[]</code>, <code>output_addresses[]</code>, <code>input_amounts[]</code>, <code>output_amounts[]</code>, <code>fee</code>, <code>script_type</code> (P2PKH, P2SH, SegWit, Taproot).
+    </li>
+  </ul>
+</div>
+
+<div class="section-block">
+  <h3>Module 2: Network-to-Blockchain Graph Correlation Engine</h3>
+  <ul>
+    <li><strong>First-Seen Relay Heuristic:</strong> Maps transaction broadcasts across peer nodes. The node with the earliest timestamp for a given TXID is identified as the likely <em>Entry-Node / Origin Node</em>.</li>
+    <li><strong>Common-Input Ownership Clustering:</strong> If a single transaction consumes inputs from address A, B, and C, all three addresses are mathematically clustered as belonging to the same entity/wallet owner.</li>
+    <li><strong>Change Address Detection:</strong> Distinguishes payment outputs from change returns using address format re-use, round-number payment heuristics, and script compatibility.</li>
+    <li><strong>Tripartite Graph Structure:</strong> Creates an in-memory directed multi-graph:
+      <code>[IP Node] --(BROADCASTS)--> [TXID Node] --(SPENDS_FROM)--> [Wallet Address] --(OUTPUTS_TO)--> [Destination Address]</code>.
+    </li>
+  </ul>
+</div>
+
+<div class="section-block">
+  <h3>Module 3: Dual-Stage AI/ML Detection Engine</h3>
+  <p>NTRO explicitly demands a <strong>working AI/ML model—not just static heuristic rules</strong>. The solution utilizes a hybrid approach:</p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:25%;">Component</th>
+        <th style="width:35%;">Algorithm / Model</th>
+        <th style="width:40%;">Target Illicit Pattern</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Unsupervised Anomaly Detection</strong></td>
+        <td><strong>Isolation Forest & Deep Autoencoders</strong></td>
+        <td>Detects statistical outliers: extreme transaction velocity, anomalous fee-to-volume ratios, irregular batch sizes, and sudden transaction bursts from previously dormant IPs.</td>
+      </tr>
+      <tr>
+        <td><strong>Graph Topology Classification</strong></td>
+        <td><strong>Graph Neural Networks (GraphSAGE / GCN)</strong> & <strong>XGBoost</strong></td>
+        <td>Trained on graph structural embeddings (node degree, centrality, clustering coefficient, in/out ratio, peeling depth) to identify laundering chains, mixer outputs, and ransomware cash-out clusters.</td>
+      </tr>
+      <tr>
+        <td><strong>Temporal Sequence Analysis</strong></td>
+        <td><strong>Temporal Graph Attention Networks / LSTM</strong></td>
+        <td>Captures time-decay patterns in peeling chains where funds are rapidly hopped through intermediary burner wallets within seconds.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-block">
+  <h3>Module 4: Explainable AI (XAI) & Investigative Lead Generation</h3>
+  <p>To ensure investigative utility for intelligence officers, every alert is accompanied by an automated, court-ready evidentiary breakdown:</p>
+  <ul>
+    <li><strong>SHAP (SHapley Additive exPlanations):</strong> Computes exact quantitative contribution of each feature to the risk score (e.g., <em>+35% due to 6-hop peeling chain topology, +25% due to high-risk ASN origin, +18% due to anomalous fee ratio</em>).</li>
+    <li><strong>Composite Risk Scoring (0–100):</strong>
+      <code>Risk Score = 0.40 * GNN_Score + 0.30 * Anomaly_Score + 0.30 * Heuristic_Risk_Factors</code>.
+    </li>
+    <li><strong>Automated Dossier Generation:</strong> Generates structured investigative lead summaries in JSON and downloadable PDF formats containing full transaction lineage, associated IP geolocations, and recommended actions.</li>
+  </ul>
+</div>
+
+<div class="section-block">
+  <h3>Module 5: Offline SOC-Style Web Dashboard & Visualization</h3>
+  <ul>
+    <li><strong>Interactive Network Canvas:</strong> Built with <strong>Cytoscape.js</strong> or <strong>Force-Directed Graphs</strong>, enabling analysts to expand wallet nodes, trace fund hops, and visually inspect IP-to-wallet bindings.</li>
+    <li><strong>Triage Alert Feed:</strong> Prioritized queue sorting entities into <span class="pill pill-amber">Medium Risk</span>, <span class="pill pill-blue">High Risk</span>, and <span class="pill pill-purple">Critical Malicious</span>.</li>
+    <li><strong>Forensic Filters:</strong> Filter by Country, ASN, Date-Range, Minimum BTC Value, Script Type, and Laundering Typology.</li>
+  </ul>
+</div>
+
+<h2>5. Suggested Technology Stack (Linux Offline Ready)</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:28%;">Component Layer</th>
+      <th style="width:42%;">Recommended Technologies</th>
+      <th style="width:30%;">Role & Justification</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Core Language & Runtime</strong></td>
+      <td>Python 3.11+, Bash Scripts, Docker (Linux Ubuntu/Debian)</td>
+      <td>Standard forensic runtime; native offline Docker packaging.</td>
+    </tr>
+    <tr>
+      <td><strong>High-Speed Ingestion</strong></td>
+      <td>Polars / DuckDB / PyArrow</td>
+      <td>Columnar processing capable of parsing 1M+ rows in seconds offline.</td>
+    </tr>
+    <tr>
+      <td><strong>Offline Geo & Enrichment</strong></td>
+      <td>GeoIP2 Python SDK, MaxMind GeoLite2-City & ASN (.mmdb)</td>
+      <td>100% offline IP-to-country and ASN mapping without API limits.</td>
+    </tr>
+    <tr>
+      <td><strong>Graph Processing</strong></td>
+      <td>NetworkX / Rustworkx / Neo4j Community (Offline)</td>
+      <td>Entity clustering, multi-input linking, shortest path tracing.</td>
+    </tr>
+    <tr>
+      <td><strong>Machine Learning & XAI</strong></td>
+      <td>PyTorch Geometric (PyG), Scikit-Learn, LightGBM, SHAP</td>
+      <td>Graph convolutional embeddings, anomaly isolation, explainability.</td>
+    </tr>
+    <tr>
+      <td><strong>Backend API</strong></td>
+      <td>FastAPI / Uvicorn (Asynchronous, lightweight)</td>
+      <td>High-concurrency offline RESTful endpoints for graph & leads.</td>
+    </tr>
+    <tr>
+      <td><strong>Frontend UI & Visuals</strong></td>
+      <td>React, Vite, TailwindCSS, Cytoscape.js / Vis-Network</td>
+      <td>Sleek, responsive dark-mode cyber intelligence dashboard.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>6. Step-by-Step Implementation Roadmap for Hackathon</h2>
+
+<div class="callout">
+  <div class="callout-title">Phase 1: Ingestion & Enrichment Pipeline (Day 1 - Morning)</div>
+  Set up local directory structure and download MaxMind offline databases. Implement <code>data_loader.py</code> using Polars to ingest sample synthetic CSV/JSON/XML data. Enrich every row with country code, ASN name, and normalized Bitcoin fields (Satoshis converted to BTC).
+</div>
+
+<div class="callout">
+  <div class="callout-title">Phase 2: Graph Resolution & Entity Clustering (Day 1 - Afternoon)</div>
+  Build <code>graph_builder.py</code>. Implement common-input heuristics to group multi-input addresses into unified clusters. Construct the heterogeneous network linking IP address nodes to TXID nodes and Wallet nodes. Calculate graph metrics (Degree, Betweenness Centrality, In-Degree/Out-Degree ratio).
+</div>
+
+<div class="callout">
+  <div class="callout-title">Phase 3: AI/ML Model Training & Explainability (Day 1 - Night)</div>
+  Engineer tabular + graph features: transaction velocity, fee anomaly ratio, peeling hop count, clustering coefficient, and night-time activity ratio. Train an Isolation Forest model for anomaly scoring and a Graph Neural Network / Gradient Boosting classifier for malicious typology prediction. Integrate TreeSHAP to compute top contributing factors.
+</div>
+
+<div class="callout">
+  <div class="callout-title">Phase 4: Dashboard & Interactive Link Analysis (Day 2 - Morning)</div>
+  Build the FastAPI endpoints (<code>/api/leads</code>, <code>/api/graph/{id}</code>, <code>/api/stats</code>). Connect the React frontend with Cytoscape.js. Enable clicking on any wallet node to view its associated IP origin, SHAP radar chart, and step-by-step transaction hops.
+</div>
+
+<div class="callout">
+  <div class="callout-title">Phase 5: Packaging & Evaluation Dossier (Day 2 - Afternoon)</div>
+  Package the entire solution in a single offline Docker container or standalone shell script (<code>run_offline.sh</code>). Test with sample data while physically disconnecting Wi-Fi/Ethernet to guarantee 100% offline compliance for NTRO judges.
+</div>
+
+<h2>7. Strategic Advice: What Will Make You Win SIH 2026</h2>
+<ul>
+  <li><strong>1. Strict Offline Guarantee:</strong> Judges from NTRO are technical defense and intelligence experts. During the presentation, unplug the internet cable or turn off Wi-Fi before running the demo. A live web query to a third-party explorer will instantly disqualify a team; an offline system executing locally will earn top marks.</li>
+  <li><strong>2. Real ML vs. Fake Rules:</strong> Many competing teams will write 10 <code>if/else</code> statements and call it "AI". Clearly show your ML training pipeline, the loss curve, your GNN architecture, and the SHAP feature importance plot to prove genuine data science rigor.</li>
+  <li><strong>3. Correlation Proof:</strong> Clearly demonstrate how your system bridges the <em>Network Layer</em> and <em>Blockchain Layer</em>. Show a specific case: <em>"Here is an unconfirmed P2P broadcast from IP 185.x.x.x in Country X; our timing correlator matched it with TXID 9a2f... which subsequently triggered a 4-hop peeling chain."</em></li>
+  <li><strong>4. Intelligence Dossier Export:</strong> Provide a "Download Law Enforcement Report" button that generates an actionable, timestamped investigative lead sheet with hash signatures.</li>
+</ul>
+
+<div class="footer">
+  <span>Smart India Hackathon 2026 · Challenge SIH26146 Deep Analysis Report</span>
+  <span>National Technical Research Organisation (NTRO) · Government of India</span>
+</div>
+
+</body>
+</html>
