@@ -1,0 +1,15 @@
+cidr,country,asn,org,category
+185.220.100.0/24,DE,AS205100,F3 Netze e.V. (Tor exit relays),tor_exit
+185.220.101.0/24,DE,AS205100,F3 Netze e.V. (Tor exit relays),tor_exit
+104.244.72.0/21,LU,AS53667,FranTech Solutions (Tor exit hosting),tor_exit
+193.32.126.0/24,SE,AS39351,31173 Services AB (commercial VPN),vpn
+146.70.0.0/16,RO,AS9009,M247 Europe (commercial VPN hosting),vpn
+159.65.0.0/16,US,AS14061,DigitalOcean LLC,hosting
+95.216.0.0/16,FI,AS24940,Hetzner Online GmbH,hosting
+49.36.0.0/14,IN,AS55836,Reliance Jio Infocomm,residential
+106.192.0.0/11,IN,AS45609,Bharti Airtel,mobile
+117.192.0.0/10,IN,AS9829,BSNL,residential
+73.0.0.0/8,US,AS7922,Comcast Cable,residential
+91.0.0.0/10,DE,AS3320,Deutsche Telekom,residential
+203.0.113.0/24,SG,AS64500,Demo Exchange Infrastructure,exchange
+198.51.100.0/24,IN,AS64501,Monitoring sensor network,sensor
