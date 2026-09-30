@@ -1,6 +1,8 @@
 # VIGIL-CHAIN: AI-Powered Monitoring & Analysis of Bitcoin Transaction Traffic
 
 > **Smart India Hackathon 2026 — Problem Statement 26146** (Blockchain & Cybersecurity, software edition; problem posed by NTRO).
+> **Live console:** https://adityak39l.github.io/SIH_26146/
+>
 > This is a student prototype. It is not an official system of any agency, and every transaction in this repository is synthetic.
 
 ---
