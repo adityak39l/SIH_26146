@@ -55,7 +55,10 @@ main.wrap { padding-top: 22px; padding-bottom: 40px; }
 .pills { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.18); border-radius: 999px;
   padding: 3px 10px; font-size: 12px; color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.10); white-space: nowrap; }
-.pill.ok i { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.25); }
+.pill.ok { border-color: rgba(74,222,128,0.55); background: rgba(74,222,128,0.16); color: #fff; font-weight: 600; }
+.pill.ok i { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: pulse 1.8s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.7); } 100% { box-shadow: 0 0 0 7px rgba(74,222,128,0); } }
+@media (prefers-reduced-motion: reduce) { .pill.ok i { animation: none; box-shadow: 0 0 0 3px rgba(74,222,128,0.25); } }
 .icon-btn { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.10); color: #fff; }
 .icon-btn:hover { background: rgba(255,255,255,0.22); }
@@ -110,6 +113,8 @@ button.chip:hover { background: var(--wash); }
               linear-gradient(118deg, var(--brand-1), var(--brand-2) 58%, var(--brand-3));
   --critical: #ff9a9a; --serious: #ffb98f; --warning: #ffd666; }
 .hero .eyebrow { color: rgba(255,255,255,0.72); }
+.hero .ran { display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; font-size: 12.5px; color: rgba(255,255,255,0.84); }
+.hero .ran i { width: 16px; height: 16px; border-radius: 50%; background: #4ade80; color: #0d1b3d; display: inline-grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 700; }
 .hero .btn { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.24); color: #fff; }
 .hero .btn:hover { background: rgba(255,255,255,0.24); }
 .hero .btn.primary, .hero .btn.primary:hover { background: #fff; color: #0d1b3d; filter: none; }

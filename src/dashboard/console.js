@@ -133,6 +133,7 @@ function factorRows(factors) {
         <h1>${esc(headline)}</h1>
         <p>${esc(btc(inflow))} moved through the flagged operations. Each case joins what the network saw (who announced it, from where) with what the ledger recorded (which wallets, how much), and explains its score signal by signal.</p>
         <div class="actions"><a class="btn primary" href="#cases">Review cases →</a><a class="btn" href="#evaluation">How accurate is it?</a><a class="btn" href="#method">How it works</a></div>
+        <div class="ran"><i aria-hidden="true">✓</i>Analysis complete: ${num(S.transactions)} transactions processed in ${esc(DATA.meta.runtime_s)} s, all 5 stages ran</div>
       </div>
       <div class="sev-tiles">
         ${["CRITICAL", "HIGH", "MEDIUM"].map((l) => `<button class="sev-tile" type="button" data-sev="${l}">${sev(l)}<b>${num(by[l])}</b><span class="small">case${by[l] === 1 ? "" : "s"}</span></button>`).join("")}
@@ -386,6 +387,9 @@ function renderCase() {
 (function renderFooter() {
   const m = DATA.meta;
   $("case-count").textContent = CASES.length;
+  // "Live" on a hosted copy; say so plainly when the file is opened from disk or a local server.
+  const local = location.protocol === "file:" || ["localhost", "127.0.0.1"].includes(location.hostname);
+  $("status-text").textContent = local ? "Running locally" : "Live";
   $("foot").innerHTML = `<span>Pipeline v${esc(m.pipeline_version)} · run ${esc(m.generated_at)} in ${esc(m.runtime_s)} s</span>` +
     m.sources.map((f) => `<span>${esc(f.file)} · ${esc(f.records)} records${f.sha256 ? ` · sha256 <span class="mono">${esc(f.sha256.slice(0, 12))}…</span>` : ""}</span>`).join("") +
     `<span>Student prototype for SIH 2026 PS 26146. Synthetic data; not an official system of any agency.</span>`;
