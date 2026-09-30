@@ -35,10 +35,13 @@ class GraphSAGEClassifier:
     inductive: it is trained on one set of graphs and applied to unseen captures.
     """
 
-    def __init__(self, in_dim: int, hidden: int = 24, seed: int = 0):
+    def __init__(self, in_dim: int, hidden: int = 24, seed: int = 0, clip: float = None):
         rng = np.random.default_rng(seed)
         self.in_dim = in_dim
         self.hidden = hidden
+        # Standardised features are clipped to +-clip when set. Real ledger features have
+        # extreme tails, and a network that leans on them does not carry over to later data.
+        self.clip = clip
 
         def glorot(rows: int, cols: int) -> np.ndarray:
             limit = np.sqrt(6.0 / (rows + cols))
@@ -100,24 +103,35 @@ class GraphSAGEClassifier:
             grads[f"W{layer}_in"] = c[f"M_in{layer}"].T @ dZ + l2 * p[f"W{layer}_in"]
             grads[f"W{layer}_out"] = c[f"M_out{layer}"].T @ dZ + l2 * p[f"W{layer}_out"]
             grads[f"b{layer}"] = dZ.sum(axis=0)
+            if layer == "1":
+                break  # the gradient with respect to the input features is not needed
             dH = (dZ @ p[f"W{layer}_self"].T
                   + _mean_aggregate_backward(dZ @ p[f"W{layer}_in"].T, c["src"], c["dst"], c["inv_in"])
                   + _mean_aggregate_backward(dZ @ p[f"W{layer}_out"].T, c["dst"], c["src"], c["inv_out"]))
         return float(loss), grads
 
     def fit(self, X: np.ndarray, edges: np.ndarray, y: np.ndarray, epochs: int = 300,
-            lr: float = 0.01, l2: float = 1e-4, verbose: bool = False) -> List[float]:
-        """Full-batch Adam on class-balanced binary cross-entropy. Returns the loss history."""
+            lr: float = 0.01, l2: float = 1e-4, verbose: bool = False,
+            mask: np.ndarray = None, callback=None) -> List[float]:
+        """
+        Full-batch Adam on class-balanced binary cross-entropy. Returns the loss history.
+
+        `mask` selects the nodes whose labels are used; the others still pass messages,
+        which is how partly labelled graphs are trained. `callback(step)` is called after
+        every update, e.g. to track validation performance.
+        """
         X = np.asarray(X, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
+        mask = np.ones(len(y), dtype=bool) if mask is None else np.asarray(mask, dtype=bool)
         self.mean = X.mean(axis=0)
         self.std = X.std(axis=0)
         self.std[self.std < 1e-9] = 1.0
-        Xn = (X - self.mean) / self.std
+        Xn = self._normalise(X)
 
-        positives = max(y.sum(), 1.0)
-        negatives = max(len(y) - y.sum(), 1.0)
-        sample_weight = np.where(y > 0.5, len(y) / (2.0 * positives), len(y) / (2.0 * negatives))
+        labelled = float(mask.sum())
+        positives = max(y[mask].sum(), 1.0)
+        negatives = max(labelled - y[mask].sum(), 1.0)
+        sample_weight = np.where(y > 0.5, labelled / (2.0 * positives), labelled / (2.0 * negatives)) * mask
 
         m = {k: np.zeros_like(v) for k, v in self.params.items()}
         v = {k: np.zeros_like(val) for k, val in self.params.items()}
@@ -134,13 +148,18 @@ class GraphSAGEClassifier:
                 self.params[key] = self.params[key] - lr * m_hat / (np.sqrt(v_hat) + eps)
             if verbose and (step == 1 or step % 50 == 0):
                 print(f"    epoch {step:4d}  loss {loss:.4f}")
+            if callback:
+                callback(step)
         return history
 
+    def _normalise(self, X: np.ndarray) -> np.ndarray:
+        Xn = (np.asarray(X, dtype=np.float64) - self.mean) / self.std
+        return np.clip(Xn, -self.clip, self.clip) if self.clip else Xn
+
     def predict_proba(self, X: np.ndarray, edges: np.ndarray) -> np.ndarray:
-        X = np.asarray(X, dtype=np.float64)
         if len(X) == 0:
             return np.zeros(0)
-        logits, _ = self._forward((X - self.mean) / self.std, edges)
+        logits, _ = self._forward(self._normalise(X), edges)
         return _sigmoid(logits)
 
     def occlusion(self, X: np.ndarray, edges: np.ndarray) -> np.ndarray:
@@ -151,7 +170,7 @@ class GraphSAGEClassifier:
         perturbation estimate that says what the GNN reacted to; it is not an exact
         Shapley value, because GNN features interact through the layers.
         """
-        Xn = (np.asarray(X, dtype=np.float64) - self.mean) / self.std
+        Xn = self._normalise(X)
         if len(Xn) == 0:
             return np.zeros((0, self.in_dim))
         base, _ = self._forward(Xn, edges)

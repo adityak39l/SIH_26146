@@ -9,6 +9,7 @@ env/
 data/raw/*
 !data/raw/sample_transactions.json
 !data/raw/demo/
+data/external/
 data/models/*.pkl
 data/models/*.pt
 data/geoip/*.mmdb

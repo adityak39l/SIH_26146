@@ -357,6 +357,17 @@ function renderCase() {
   } else {
     html += `<div class="card"><h2>Detection against ground truth</h2><p class="desc">No ground truth is available for this dataset, so accuracy cannot be measured here.</p></div>`;
   }
+  const real = DATA.real_data;
+  if (real) {
+    const rd = real.detectors, gain = rd.graphsage.f1 - rd.mlp.f1;
+    const rows = Object.entries(rd).map(([key, x]) => `<tr class="${key === "graphsage" ? "best" : ""}"><td>${esc(x.label)}</td><td>${bar(x.precision, "var(--series-1)")}</td><td>${bar(x.recall, "var(--series-2)")}</td>
+      <td class="n">${x.f1.toFixed(3)}</td><td class="n">${x.roc_auc.toFixed(3)}</td><td class="n">${x.average_precision.toFixed(3)}</td><td class="n">${esc(x.tp)} / ${esc(x.fp)} / ${esc(x.fn)}</td></tr>`).join("");
+    html += `<div class="card" style="margin-top:16px"><div class="eyebrow">Real data</div><h2>The graph model on real Bitcoin transactions</h2>
+      <p class="desc">${esc(real.dataset)}: ${num(real.transactions)} real transactions and ${num(real.edges)} payment links, ${num(real.labelled_illicit)} labelled illicit and ${num(real.labelled_licit)} licit. Protocol: ${esc(real.split)}. Scores are for the illicit class on ${num(real.test_illicit + real.test_licit)} labelled test transactions (${num(real.test_illicit)} illicit).</p>
+      <div class="legend"><span style="--c:var(--series-1)">precision</span><span style="--c:var(--series-2)">recall</span></div>
+      <div class="scroll"><table><thead><tr><th>Detector</th><th>Precision</th><th>Recall</th><th class="n">F1</th><th class="n">ROC-AUC</th><th class="n">Avg. precision</th><th class="n">TP / FP / FN</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="callout small" style="margin:14px 0 0"><b>How to read this.</b> Reading the graph ${gain >= 0 ? "adds" : "costs"} ${Math.abs(gain).toFixed(3)} F1 over the same network without it, so the graph carries real signal. The absolute score is modest: ${esc(real.reference)}. Our small NumPy model separates the classes (ROC-AUC ${rd.graphsage.roc_auc.toFixed(3)}) but loses precision as laundering patterns drift over time. Anomaly detection alone fails here: real illicit transactions do not look unusual. Elliptic has no network-layer data, so origin attribution and the fused score cannot be measured on it.</p></div>`;
+  }
   const maxW = Math.max(...card.evidence.map((w) => Math.abs(w.weight)), 1e-9);
   const weights = card.evidence.map((w) => `<tr><td>${esc(w.label)}</td><td><div class="factor" style="grid-template-columns:minmax(0,1fr) 60px;padding:0;margin:0"><div class="track"><div class="bar ${w.weight >= 0 ? "raise" : "lower"}" style="left:${w.weight >= 0 ? 50 : 50 - Math.abs(w.weight) / maxW * 50}%;width:${Math.abs(w.weight) / maxW * 50}%"></div><div class="zero" style="left:50%"></div></div><div class="num">${signed(w.weight, 3)}</div></div></td><td class="n">${w.background.toFixed(3)}</td></tr>`).join("");
   html += `<div class="card" style="margin-top:16px"><h2>Model card</h2>

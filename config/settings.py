@@ -21,6 +21,8 @@ OFFLINE_NETWORK_TABLE = GEOIP_DIR / "offline_networks.csv"
 # Trained model bundle (GraphSAGE weights + risk-fusion weights)
 MODEL_FILE = MODELS_DIR / "vigil_chain_v1.npz"
 DEMO_GROUND_TRUTH = EVAL_DIR / "demo_ground_truth.json"
+# Written by `python -m src.pipeline.elliptic`; shown in the console when present.
+ELLIPTIC_RESULTS = EVAL_DIR / "elliptic_results.json"
 
 PIPELINE_VERSION = "2.0.0"
 

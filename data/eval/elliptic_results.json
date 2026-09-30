@@ -1,0 +1,67 @@
+{
+ "dataset": "Elliptic Bitcoin dataset (Weber et al., 2019)",
+ "transactions": 203769,
+ "edges": 234355,
+ "features": 165,
+ "labelled_illicit": 4545,
+ "labelled_licit": 42019,
+ "split": "fit on time steps 1-25, tune on 30-34, test on 35-49 (unseen graphs)",
+ "preprocessing": "standardised features clipped to +-3, chosen on the validation window",
+ "test_illicit": 1083,
+ "test_licit": 15587,
+ "architecture": "GraphSAGE mean, 2 layers, hidden 64, NumPy",
+ "detectors": {
+  "logistic": {
+   "label": "Logistic regression (features only)",
+   "precision": 0.1987,
+   "recall": 0.8033,
+   "f1": 0.3186,
+   "roc_auc": 0.8727,
+   "average_precision": 0.2981,
+   "tp": 870,
+   "fp": 3509,
+   "fn": 213,
+   "threshold": 0.9749
+  },
+  "mlp": {
+   "label": "Neural network without the graph",
+   "epochs": 50,
+   "precision": 0.2582,
+   "recall": 0.4949,
+   "f1": 0.3393,
+   "roc_auc": 0.8298,
+   "average_precision": 0.1925,
+   "tp": 536,
+   "fp": 1540,
+   "fn": 547,
+   "threshold": 0.9235
+  },
+  "graphsage": {
+   "label": "GraphSAGE (this project's GNN)",
+   "epochs": 40,
+   "precision": 0.349,
+   "recall": 0.4395,
+   "f1": 0.389,
+   "roc_auc": 0.8751,
+   "average_precision": 0.2574,
+   "tp": 476,
+   "fp": 888,
+   "fn": 607,
+   "threshold": 0.8627
+  },
+  "isolation_forest": {
+   "label": "Isolation Forest (unsupervised)",
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "roc_auc": 0.1688,
+   "average_precision": 0.0363,
+   "tp": 0,
+   "fp": 1083,
+   "fn": 1083,
+   "threshold": 0.5696
+  }
+ },
+ "runtime_s": 618.9,
+ "reference": "Weber et al. (2019) report an illicit-class F1 of about 0.63 for a GCN and about 0.79 for a random forest on this split"
+}

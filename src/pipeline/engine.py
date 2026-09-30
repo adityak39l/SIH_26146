@@ -11,6 +11,7 @@ from config.settings import (
     CRITICAL_RISK_THRESHOLD,
     DEMO_DATA_DIR,
     DEMO_GROUND_TRUTH,
+    ELLIPTIC_RESULTS,
     HIGH_RISK_THRESHOLD,
     MEDIUM_RISK_THRESHOLD,
     MODEL_FILE,
@@ -248,6 +249,7 @@ def analyze(source=None, ground_truth: Optional[Path] = None, verbose: bool = Fa
                            "medium": MEDIUM_RISK_THRESHOLD, "peel_min_hops": PEEL_MIN_HOPS},
         },
         "evaluation": None,
+        "real_data": json.loads(ELLIPTIC_RESULTS.read_text(encoding="utf-8")) if ELLIPTIC_RESULTS.exists() else None,
     }
     if ground_truth and Path(ground_truth).exists():
         with open(ground_truth, "r", encoding="utf-8") as f:

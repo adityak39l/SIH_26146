@@ -79,6 +79,15 @@ class DemoPipelineTests(unittest.TestCase):
         logit = card["bias"] + sum(e["weight"] * v for e, v in zip(card["evidence"], tx["evidence"]))
         self.assertAlmostEqual(100 / (1 + math.exp(-logit)), tx["risk_score"], delta=0.5)
 
+    def test_real_data_results_are_well_formed_when_present(self):
+        real = self.result["real_data"]
+        if real is None:
+            self.skipTest("Elliptic results not generated (python -m src.pipeline.elliptic)")
+        self.assertEqual(set(real["detectors"]), {"logistic", "mlp", "graphsage", "isolation_forest"})
+        for detector in real["detectors"].values():
+            self.assertTrue(0.0 <= detector["f1"] <= 1.0)
+            self.assertEqual(detector["tp"] + detector["fn"], real["test_illicit"])
+
     def test_result_is_json_and_renders(self):
         html = render_dashboard(json.loads(json.dumps(self.result)))
         self.assertNotIn("__VIGIL_DATA__", html)

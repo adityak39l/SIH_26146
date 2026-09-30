@@ -60,6 +60,24 @@ The demo capture ([data/raw/demo/](data/raw/demo/)) has 633 transactions and 4,5
 
 **Read these numbers correctly.** Training and test data come from the same simulator ([src/simulation/generator.py](src/simulation/generator.py)), with different seeds. They show the pipeline works end to end and that each stage adds something; they do not predict accuracy on real traffic.
 
+### On real Bitcoin data (Elliptic)
+
+The blockchain-layer models were also run on the Elliptic dataset: 203,769 real Bitcoin transactions and 234,355 payment links, of which 4,545 are labelled illicit and 42,019 licit. Labels from time steps 1-25 are used for fitting, 30-34 for choosing the epoch and threshold, and 35-49 (graphs never seen in training) for testing. Reproduce with `python -m src.pipeline.elliptic` (downloads about 150 MB, needs pandas, takes about 10 minutes).
+
+| Detector (illicit class, 1,083 illicit of 16,670 test transactions) | Precision | Recall | F1 | ROC-AUC |
+|---|---|---|---|---|
+| Logistic regression, features only | 0.199 | 0.803 | 0.319 | 0.873 |
+| Neural network without the graph | 0.258 | 0.495 | 0.339 | 0.830 |
+| **GraphSAGE** | **0.349** | **0.440** | **0.389** | **0.875** |
+| Isolation Forest (unsupervised) | 0.000 | 0.000 | 0.000 | 0.169 |
+
+What this shows, plainly:
+
+- **The graph helps on real data too:** +0.05 F1 and +0.045 ROC-AUC over the identical network with the edges removed.
+- **The absolute score is modest.** Weber et al. (2019) report about 0.63 F1 for a GCN and about 0.79 for a random forest on this split. Our small NumPy GraphSAGE ranks transactions reasonably (ROC-AUC 0.875) but loses precision as laundering patterns drift between the training and test periods. Closing that gap (tree ensembles, temporal models) is the first roadmap item.
+- **Anomaly detection alone fails on real data** (ROC-AUC 0.169, worse than chance): real illicit transactions sit inside the normal range, which is why the supervised graph model is needed.
+- Elliptic has no IP-level data, so origin attribution and the fused two-layer score cannot be tested on it; those results remain simulation-only.
+
 ## 4. Quick start (offline)
 
 ```bash
@@ -106,12 +124,12 @@ src/pipeline/               engine, training, evaluation, case building, console
 src/dashboard/              analyst console template (single file, no external assets)
 src/api/                    FastAPI server
 docs/index.html             prebuilt console for static hosting
-tests/                      39 unit and end-to-end tests
+tests/                      unit and end-to-end tests
 ```
 
 ## 6. Limits
 
-- **Simulated training data.** No public dataset joins P2P announcements to labelled transactions. Before any operational use the models need retraining on labelled real captures (the Elliptic dataset covers the blockchain layer).
+- **Simulated two-layer data.** No public dataset joins P2P announcements to labelled transactions, so the network layer and the fused score are tested on simulated traffic only. The blockchain layer is also tested on real data (Elliptic), where it is weaker than published baselines.
 - **First-seen attribution is an estimate.** It needs sensors connected to a large share of the network, and Bitcoin Core deliberately randomises announcement timing. It cannot see through Tor or a VPN: it reports the exit, not the sender.
 - **A flag is not a finding.** CoinJoin is also used lawfully, and exchanges legitimately produce peel-chain shapes. Each output is a lead that must be corroborated; whether it is admissible as evidence is for a court to decide, not the software.
 - **Address-level linking.** The metadata carries addresses, not outpoints, so a spend is linked to the most recent earlier payment to that address.
@@ -120,7 +138,7 @@ tests/                      39 unit and end-to-end tests
 
 ## 7. Roadmap
 
-1. Train on Elliptic / Elliptic++ labels and report results on real blockchain-layer data.
+1. Close the gap to published Elliptic results: gradient-boosted trees on node features plus GNN embeddings, and training that is robust to drift over time.
 2. Replace first-seen with a diffusion-model estimator (rumour centrality) that uses the full announcement order per sensor.
 3. Add change-address heuristics and cross-capture entity memory, so clusters persist between runs.
 4. Temporal GNN over a sliding window for streaming captures; DuckDB/Parquet ingestion for bulk scale.
