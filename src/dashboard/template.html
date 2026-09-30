@@ -5,400 +5,63 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VIGIL-CHAIN Analyst Console</title>
 <style>
-:root {
-  color-scheme: light;
-  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
-  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10); --wash: rgba(11,11,11,0.04);
-  --series-1: #2a78d6; --series-2: #eb6834;
-  --raise: #e34948; --lower: #2a78d6;
-  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
-    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --wash: rgba(255,255,255,0.05);
-    --series-1: #3987e5; --series-2: #d95926; --raise: #e66767; --lower: #3987e5;
-  }
-}
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
-  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --wash: rgba(255,255,255,0.05);
-  --series-1: #3987e5; --series-2: #d95926; --raise: #e66767; --lower: #3987e5;
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--page); color: var(--ink);
-  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-button { font: inherit; color: inherit; cursor: pointer; }
-code, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12.5px; }
-.wrap { max-width: 1320px; margin: 0 auto; padding: 0 16px 48px; }
-header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 20px 0 12px; }
-h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
-.sub { color: var(--ink2); font-size: 13px; }
-.notice { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--ink2);
-  font-size: 12.5px; background: var(--surface); margin-bottom: 16px; }
-.btn { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 6px 12px; }
-.btn:hover { background: var(--wash); }
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
-.tile .label { color: var(--ink2); font-size: 12px; }
-.tile .value { font-size: 26px; font-weight: 600; line-height: 1.2; }
-.tile .hint { color: var(--muted); font-size: 12px; }
-.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--grid); margin-bottom: 16px; overflow-x: auto; }
-.tab { border: 0; background: none; padding: 8px 12px; border-bottom: 2px solid transparent; color: var(--ink2); white-space: nowrap; }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
-.panel { display: none; } .panel.active { display: block; }
-.split { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; align-items: start; }
-@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); } }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-.card h2 { font-size: 15px; margin: 0 0 4px; }
-.card h3 { font-size: 13px; margin: 16px 0 6px; color: var(--ink2); font-weight: 600; }
-.card .desc { color: var(--ink2); font-size: 12.5px; margin: 0 0 12px; }
-.case-list { display: flex; flex-direction: column; gap: 8px; max-height: 78vh; overflow-y: auto; }
-.case-item { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; width: 100%; }
-.case-item:hover { background: var(--wash); }
-.case-item[aria-current="true"] { outline: 2px solid var(--ink); outline-offset: -1px; }
-.case-item .row { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.case-item .score { font-weight: 600; font-variant-numeric: tabular-nums; }
-.case-item .meta { color: var(--ink2); font-size: 12.5px; }
-.sev { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
-.sev i { font-style: normal; font-size: 11px; }
-.sev.CRITICAL i { color: var(--critical); } .sev.HIGH i { color: var(--serious); }
-.sev.MEDIUM i { color: var(--warning); } .sev.LOW i { color: var(--muted); }
-.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 16px; margin: 12px 0 4px; }
-.kv div span { display: block; color: var(--ink2); font-size: 12px; }
-.kv div b { font-weight: 600; font-variant-numeric: tabular-nums; }
-.narrative { margin: 8px 0 0; }
-.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--ink2); margin: 6px 0 10px; }
-.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; background: var(--c); vertical-align: -1px; }
-.factor { display: grid; grid-template-columns: minmax(150px, 42%) minmax(0, 1fr) 58px; gap: 10px; align-items: center; padding: 4px 0; font-size: 13px; }
-.factor .track { position: relative; height: 14px; }
-.factor .zero { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--axis); }
-.factor .bar { position: absolute; top: 0; height: 14px; }
-.factor .bar.raise { background: var(--raise); border-radius: 0 4px 4px 0; }
-.factor .bar.lower { background: var(--lower); border-radius: 4px 0 0 4px; }
-.factor .num { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink2); }
-.flow { overflow: auto; border: 1px solid var(--grid); border-radius: 8px; max-height: 460px; background: var(--surface); }
-.flow svg { display: block; }
-.flow .edge { fill: none; stroke: var(--axis); }
-.flow .node rect.body { fill: var(--surface); stroke: var(--axis); stroke-width: 1; }
-.flow .node rect.band { stroke: none; }
-.flow .node text { fill: var(--ink); font-size: 11px; }
-.flow .node text.id { fill: var(--ink2); font-family: ui-monospace, Consolas, monospace; font-size: 10px; }
-.flow .node { cursor: pointer; }
-.flow .node.selected rect.body { stroke: var(--ink); stroke-width: 2; }
-table { border-collapse: collapse; width: 100%; font-size: 13px; }
-th { text-align: left; font-weight: 600; color: var(--ink2); font-size: 12px; padding: 6px 8px; border-bottom: 1px solid var(--axis); white-space: nowrap; }
-td { padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
-td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
-.scroll { overflow-x: auto; }
-.databar { display: grid; grid-template-columns: minmax(60px, 1fr) 44px; gap: 8px; align-items: center; min-width: 130px; }
-.databar .t { height: 10px; position: relative; border-left: 1px solid var(--axis); }
-.databar .t div { position: absolute; left: 0; top: 0; height: 10px; border-radius: 0 4px 4px 0; background: var(--c); }
-.databar span { text-align: right; font-variant-numeric: tabular-nums; }
-.hash { word-break: break-all; color: var(--ink2); }
-.small { font-size: 12.5px; color: var(--ink2); }
-#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--surface); color: var(--ink); border: 1px solid var(--border);
-  border-radius: 8px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 16px rgba(0,0,0,0.18); max-width: 320px; display: none; }
-#tip b { display: block; margin-bottom: 2px; }
-.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
-.steps .card { margin: 0; }
-.steps .num { color: var(--muted); font-size: 12px; font-weight: 600; }
-@media print {
-  header .btn, .tabs, .case-list, .tiles, .notice, .actions { display: none !important; }
-  .split { grid-template-columns: 1fr; } .panel { display: none !important; } #panel-cases { display: block !important; }
-  .flow { max-height: none; overflow: visible; } body { background: #fff; }
-}
+/*__CSS__*/
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>VIGIL-CHAIN Analyst Console</h1>
-      <div class="sub">Offline correlation of Bitcoin network-layer and blockchain-layer metadata &middot; SIH 2026 problem statement 26146</div>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="#overview" aria-label="VIGIL-CHAIN overview">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M10.5 13 16 16.2l5.5-3.2M16 16.2v6.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="10.5" cy="13" r="2.2" fill="currentColor"/><circle cx="21.5" cy="13" r="2.2" fill="currentColor"/><circle cx="16" cy="22.5" r="2.2" fill="currentColor"/>
+      </svg>
+      <span><b>VIGIL-CHAIN</b><small>Bitcoin traffic intelligence</small></span>
+    </a>
+    <div class="pills">
+      <span class="pill ok"><i aria-hidden="true"></i>Offline &middot; air-gapped</span>
+      <span class="pill">Synthetic demo data</span>
+      <span class="pill hide-sm">SIH 2026 &middot; PS 26146</span>
+      <button class="icon-btn" id="theme" type="button" aria-label="Switch between light and dark theme" title="Switch theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+      </button>
     </div>
-    <button class="btn" id="theme" type="button">Switch theme</button>
-  </header>
-  <div class="notice" id="notice"></div>
-  <div class="tiles" id="tiles"></div>
-  <div class="tabs" role="tablist">
-    <button class="tab" role="tab" data-panel="cases" aria-selected="true">Cases</button>
-    <button class="tab" role="tab" data-panel="origins" aria-selected="false">Network origins</button>
-    <button class="tab" role="tab" data-panel="evaluation" aria-selected="false">Model evaluation</button>
-    <button class="tab" role="tab" data-panel="method" aria-selected="false">How it works</button>
   </div>
+  <nav class="wrap tabs" role="tablist" aria-label="Console sections">
+    <a class="tab" role="tab" href="#overview" data-panel="overview">Overview</a>
+    <a class="tab" role="tab" href="#cases" data-panel="cases">Cases <span class="count" id="case-count"></span></a>
+    <a class="tab" role="tab" href="#origins" data-panel="origins">Network origins</a>
+    <a class="tab" role="tab" href="#evaluation" data-panel="evaluation">Model evaluation</a>
+    <a class="tab" role="tab" href="#method" data-panel="method">How it works</a>
+  </nav>
+</header>
 
-  <section class="panel active" id="panel-cases">
+<main class="wrap">
+  <section class="panel" id="panel-overview"></section>
+  <section class="panel" id="panel-cases">
     <div class="split">
-      <div class="case-list" id="case-list"></div>
+      <aside class="rail">
+        <div class="filters">
+          <input id="q" type="search" placeholder="Search case, IP, TXID or address" aria-label="Search cases">
+          <div class="chips" id="sev-filter" role="group" aria-label="Filter by severity"></div>
+        </div>
+        <div class="case-list" id="case-list"></div>
+      </aside>
       <div id="case-detail"></div>
     </div>
   </section>
   <section class="panel" id="panel-origins"></section>
   <section class="panel" id="panel-evaluation"></section>
   <section class="panel" id="panel-method"></section>
-</div>
+  <footer class="foot" id="foot"></footer>
+</main>
 <div id="tip" role="tooltip"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script id="vigil-data" type="application/json">__VIGIL_DATA__</script>
 <script>
-"use strict";
-const DATA = JSON.parse(document.getElementById("vigil-data").textContent);
-const $ = (id) => document.getElementById(id);
-const esc = (v) => String(v == null ? "—" : v).replace(/[&<>"']/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
-const num = (v, d = 0) => Number(v).toLocaleString("en-IN", {minimumFractionDigits: d, maximumFractionDigits: d});
-const btc = (v) => num(v, 4) + " BTC";
-const when = (ts) => ts == null ? "—" : new Date(ts * 1000).toISOString().replace("T", " ").slice(0, 19) + " UTC";
-const short = (s, n = 8) => s && s.length > 2 * n + 1 ? s.slice(0, n) + "…" + s.slice(-n) : s;
-const GLYPH = {CRITICAL: "◆", HIGH: "▲", MEDIUM: "●", LOW: "○"};
-const sev = (level) => `<span class="sev ${esc(level)}"><i aria-hidden="true">${GLYPH[level] || "○"}</i>${esc(level)}</span>`;
-const SEV_VAR = {CRITICAL: "var(--critical)", HIGH: "var(--serious)", MEDIUM: "var(--warning)", LOW: "var(--muted)"};
-
-/* ---------- tooltip ---------- */
-const tip = $("tip");
-function showTip(html, ev) {
-  tip.innerHTML = html;
-  tip.style.display = "block";
-  const pad = 14, r = tip.getBoundingClientRect();
-  let x = ev.clientX + pad, y = ev.clientY + pad;
-  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - pad;
-  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - pad;
-  tip.style.left = Math.max(8, x) + "px";
-  tip.style.top = Math.max(8, y) + "px";
-}
-const hideTip = () => { tip.style.display = "none"; };
-function bindTips(root) {
-  root.querySelectorAll("[data-tip]").forEach((el) => {
-    el.addEventListener("mousemove", (ev) => showTip(el.dataset.tip, ev));
-    el.addEventListener("mouseleave", hideTip);
-  });
-}
-
-/* ---------- header ---------- */
-(function renderHeader() {
-  const m = DATA.meta, s = DATA.summary;
-  const files = m.sources.map((f) => esc(f.file)).join(", ");
-  $("notice").innerHTML = `Prototype running on <b>synthetic demonstration data</b>; no real transactions or persons are shown. ` +
-    `Sources: ${files}. Pipeline v${esc(m.pipeline_version)}, run ${esc(m.generated_at)} in ${esc(m.runtime_s)} s, fully offline (geo source: ${esc(m.geo_source)}).`;
-  const resolved = s.transactions ? Math.round(100 * s.origin_attributed / s.transactions) : 0;
-  const tiles = [
-    ["Network observations", num(s.observations), "announcements captured"],
-    ["Transactions", num(s.transactions), num(s.wallet_addresses) + " wallet addresses"],
-    ["Origin resolved", resolved + "%", num(s.origin_unresolved) + " left unresolved"],
-    ["Entities clustered", num(s.entities), "common-input ownership"],
-    ["Cases", num(s.cases), num(s.flagged_transactions) + " flagged transactions"],
-    ["Critical cases", num(s.cases_by_severity.CRITICAL), num(s.cases_by_severity.HIGH) + " high, " + num(s.cases_by_severity.MEDIUM) + " medium"],
-  ];
-  $("tiles").innerHTML = tiles.map(([l, v, h]) => `<div class="tile"><div class="label">${esc(l)}</div><div class="value">${esc(v)}</div><div class="hint">${esc(h)}</div></div>`).join("");
-})();
-
-/* ---------- tabs & theme ---------- */
-document.querySelectorAll(".tab").forEach((tab) => tab.addEventListener("click", () => {
-  document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t === tab)));
-  document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === "panel-" + tab.dataset.panel));
-}));
-$("theme").addEventListener("click", () => {
-  const root = document.documentElement;
-  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-  root.dataset.theme = dark ? "light" : "dark";
-});
-
-/* ---------- cases ---------- */
-function renderCaseList(selected) {
-  $("case-list").innerHTML = DATA.cases.length ? DATA.cases.map((c) => `
-    <button class="case-item" type="button" data-case="${esc(c.case_id)}" aria-current="${c.case_id === selected}">
-      <div class="row"><span>${sev(c.severity)}</span><span class="score">${num(c.risk_score, 1)}</span></div>
-      <div class="row"><b>${esc(c.case_id)}</b><span class="meta">${esc(btc(c.inflow_btc))}</span></div>
-      <div class="meta">${esc(c.typology)} &middot; ${esc(c.tx_count)} tx &middot; ${esc(c.duration)}</div>
-    </button>`).join("") : `<div class="card">No transaction reached the reporting threshold.</div>`;
-  document.querySelectorAll(".case-item").forEach((el) => el.addEventListener("click", () => selectCase(el.dataset.case)));
-}
-
-function factorRows(factors) {
-  const shown = factors.filter((f) => Math.abs(f.shap_log_odds) >= 0.05);
-  const lo = Math.min(0, ...shown.map((f) => f.shap_log_odds)), hi = Math.max(0, ...shown.map((f) => f.shap_log_odds));
-  const span = (hi - lo) || 1, zero = (-lo / span) * 100;
-  return shown.map((f) => {
-    const w = Math.abs(f.shap_log_odds) / span * 100, raise = f.shap_log_odds >= 0;
-    const left = raise ? zero : zero - w;
-    const tipHtml = `<b>${esc(f.factor)}</b>Signal value ${esc(f.value)}<br>Contribution ${esc(f.impact)} log-odds` + (raise ? `<br>${esc(f.share_pct)}% of the upward push` : "");
-    return `<div class="factor" data-tip="${esc(tipHtml)}"><div>${esc(f.factor)}</div>
-      <div class="track"><div class="bar ${raise ? "raise" : "lower"}" style="left:${left}%;width:${Math.max(w, 0.6)}%"></div><div class="zero" style="left:${zero}%"></div></div>
-      <div class="num">${esc(f.impact)}</div></div>`;
-  }).join("");
-}
-
-function flowSvg(c) {
-  const txs = c.transactions, depth = txs.map(() => 0);
-  c.edges.forEach(([a, b]) => { depth[b] = Math.max(depth[b], depth[a] + 1); });
-  const rows = {}, pos = txs.map((_, i) => { const r = rows[depth[i]] = (rows[depth[i]] || 0) + 1; return [depth[i], r - 1]; });
-  const NW = 92, NH = 40, GX = 36, GY = 14, PAD = 12;
-  const x = (d) => PAD + d * (NW + GX), y = (r) => PAD + r * (NH + GY);
-  const width = x(Math.max(...depth)) + NW + PAD, height = y(Math.max(...Object.values(rows)) - 1) + NH + PAD;
-  const maxAmt = Math.max(...c.edges.map((e) => e[2]), 1e-8);
-  const edges = c.edges.map(([a, b, amt]) => {
-    const x1 = x(pos[a][0]) + NW, y1 = y(pos[a][1]) + NH / 2, x2 = x(pos[b][0]), y2 = y(pos[b][1]) + NH / 2, mx = (x1 + x2) / 2;
-    const w = 1 + 3 * Math.sqrt(amt / maxAmt);
-    return `<path class="edge" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" stroke-width="${w.toFixed(2)}" data-tip="${esc(`<b>${btc(amt)}</b>moved from ${short(txs[a].txid)} to ${short(txs[b].txid)}`)}"></path>`;
-  }).join("");
-  const nodes = txs.map((t, i) => {
-    const tipHtml = `<b>${esc(short(t.txid, 10))}</b>${esc(when(t.timestamp))}<br>${esc(t.inputs)} in → ${esc(t.outputs)} out, ${esc(btc(t.value_btc))}` +
-      `<br>Risk ${num(t.risk_score, 1)} (${esc(t.severity)})${t.bridge ? ", kept as a bridge" : ""}` +
-      `<br>Origin ${esc(t.origin_ip)} (${esc(t.origin_country)}), confidence ${esc(t.origin_confidence)}`;
-    return `<g class="node" data-idx="${i}" transform="translate(${x(pos[i][0])},${y(pos[i][1])})" data-tip="${esc(tipHtml)}" tabindex="0">
-      <rect class="body" width="${NW}" height="${NH}" rx="6"></rect>
-      <rect class="band" width="5" height="${NH}" rx="2" fill="${SEV_VAR[t.severity]}"></rect>
-      <text x="13" y="17">${GLYPH[t.severity]} ${num(t.risk_score, 1)}</text>
-      <text class="id" x="13" y="31">${esc(t.txid.slice(0, 10))}</text></g>`;
-  }).join("");
-  return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Money flow between the transactions of ${esc(c.case_id)}">${edges}${nodes}</svg>`;
-}
-
-function txDetail(c, i) {
-  const t = c.transactions[i];
-  const factors = DATA.model_card.evidence.map((e, k) => ({factor: e.absent_label && t.evidence[k] < 0.5 ? e.absent_label : e.label, value: t.evidence[k], impact: (t.shap[k] >= 0 ? "+" : "") + t.shap[k].toFixed(2), shap_log_odds: t.shap[k], share_pct: ""}))
-    .sort((a, b) => Math.abs(b.shap_log_odds) - Math.abs(a.shap_log_odds));
-  return `<h3>Selected transaction</h3>
-    <div class="mono hash">${esc(t.txid)}</div>
-    <div class="kv">
-      <div><span>First seen</span><b>${esc(when(t.timestamp))}</b></div>
-      <div><span>Risk score</span><b>${num(t.risk_score, 1)} &nbsp;${sev(t.severity)}</b></div>
-      <div><span>Value</span><b>${esc(btc(t.value_btc))}</b></div>
-      <div><span>Shape</span><b>${esc(t.inputs)} in → ${esc(t.outputs)} out</b></div>
-      <div><span>First-seen origin</span><b class="mono">${esc(t.origin_ip)}</b></div>
-      <div><span>Attribution confidence</span><b>${esc(t.origin_confidence)}${t.origin_confidence < 0.5 ? " (unresolved)" : ""}</b></div>
-      <div><span>Lead over next announcer</span><b>${t.origin_lead_ms == null ? "—" : esc(t.origin_lead_ms) + " ms"}</b></div>
-      <div><span>GNN probability / anomaly</span><b>${esc(t.gnn_prob)} / ${esc(t.anomaly)}</b></div>
-    </div>${factorRows(factors)}`;
-}
-
-function selectCase(id) {
-  const c = DATA.cases.find((k) => k.case_id === id);
-  if (!c) { $("case-detail").innerHTML = ""; return; }
-  renderCaseList(id);
-  const origins = c.origins.map((o) => `<tr><td class="mono">${esc(o.ip)}</td><td>${esc(o.category_label)}</td><td>${esc(o.country)}</td>
-    <td>${esc(o.asn)} ${esc(o.asn_org)}</td><td class="n">${esc(o.transactions)}</td><td class="n">${Number(o.mean_confidence).toFixed(2)}${o.resolved ? "" : " · unresolved, likely a relay"}</td></tr>`).join("");
-  const terminals = c.terminal_outputs.map((t) => `<tr><td class="mono hash">${esc(t.address)}</td><td class="n">${esc(btc(t.amount_btc))}</td><td>${esc(t.status)}</td></tr>`).join("");
-  const drivers = c.gnn_drivers.map((d) => `${esc(d.label)} (${d.log_odds_drop >= 0 ? "+" : ""}${d.log_odds_drop.toFixed(2)})`).join(", ");
-  const entities = c.entities.length ? c.entities.map((e) => `${esc(e.entity_id)} (${esc(e.addresses)} addresses)`).join(", ") : "none: every input address was used alone";
-  $("case-detail").innerHTML = `
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
-        <div><h2>${esc(c.case_id)} &middot; ${esc(c.typology)}</h2><div>${sev(c.severity)} &nbsp;<span class="small">peak risk ${num(c.risk_score, 1)} / 100, mean ${num(c.mean_risk, 1)}</span></div></div>
-        <div class="actions"><button class="btn" type="button" id="dl">Download JSON</button> <button class="btn" type="button" id="pr">Print dossier</button></div>
-      </div>
-      <p class="narrative">${esc(c.narrative)}</p>
-      <div class="kv">
-        <div><span>Funds entering the case</span><b>${esc(btc(c.inflow_btc))}</b></div>
-        <div><span>Transactions</span><b>${esc(c.tx_count)}</b></div>
-        <div><span>First seen</span><b>${esc(when(c.first_seen))}</b></div>
-        <div><span>Duration</span><b>${esc(c.duration)}</b></div>
-        <div><span>Outputs leaving the case</span><b>${esc(c.terminal_output_count)}</b></div>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Why this case was flagged</h2>
-      <p class="desc">Exact Shapley contribution of each evidence signal to the risk score, in log-odds, averaged over the flagged transactions. The bars and the base value (${esc(c.base_value_log_odds)}) add up to the score.</p>
-      <div class="legend"><span style="--c:var(--raise)">raises risk (+)</span><span style="--c:var(--lower)">lowers risk (−)</span></div>
-      ${factorRows(c.factors)}
-      <p class="small" style="margin:10px 0 0">What the graph neural network reacted to most (occlusion sensitivity, log-odds): ${drivers}.</p>
-    </div>
-    <div class="card">
-      <h2>Money flow</h2>
-      <p class="desc">One box per transaction, left to right in spending order; line thickness follows the amount moved. The number is the risk score. Select a box for its own explanation.</p>
-      <div class="flow" id="flow">${flowSvg(c)}</div>
-      <div id="tx-detail"></div>
-    </div>
-    <div class="card">
-      <h2>Network-layer attribution</h2>
-      <p class="desc">IP addresses that announced these transactions first. Confidence is the calibrated probability that the first announcer is the true origin; a Tor exit identifies the relay, not the sender.</p>
-      <div class="scroll"><table><thead><tr><th>First-seen IP</th><th>Network</th><th>Country</th><th>ASN</th><th class="n">Tx</th><th class="n">Confidence</th></tr></thead><tbody>${origins}</tbody></table></div>
-      <h3>Where the funds went</h3>
-      <div class="scroll"><table><thead><tr><th>Address</th><th class="n">Amount</th><th>Status</th></tr></thead><tbody>${terminals}</tbody></table></div>
-      <h3>Entities</h3><div class="small">${entities}</div>
-      <h3>Integrity</h3><div class="small">SHA-256 of this dossier record: <span class="mono hash">${esc(c.evidence_hash)}</span></div>
-      <p class="small" style="margin:10px 0 0">${esc(c.notes)}</p>
-    </div>`;
-  const detail = $("case-detail");
-  bindTips(detail);
-  detail.querySelectorAll(".node").forEach((node) => {
-    const pick = () => {
-      detail.querySelectorAll(".node").forEach((n) => n.classList.toggle("selected", n === node));
-      $("tx-detail").innerHTML = txDetail(c, Number(node.dataset.idx));
-      bindTips($("tx-detail"));
-    };
-    node.addEventListener("click", pick);
-    node.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(); } });
-  });
-  $("pr").addEventListener("click", () => window.print());
-  $("dl").addEventListener("click", () => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(c, null, 2)], {type: "application/json"}));
-    a.download = c.case_id + ".json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-  });
-}
-
-/* ---------- origins ---------- */
-(function renderOrigins() {
-  const rows = DATA.origins.map((o) => `<tr><td class="mono">${esc(o.ip)}</td><td>${esc(o.category_label)}</td><td>${esc(o.country)}</td><td>${esc(o.asn)} ${esc(o.asn_org)}</td>
-    <td class="n">${esc(o.transactions)}</td><td class="n">${esc(o.flagged)}</td><td class="n">${num(o.max_risk, 1)}</td><td class="n">${Number(o.mean_confidence).toFixed(2)}</td></tr>`).join("");
-  $("panel-origins").innerHTML = `<div class="card"><h2>First-seen origins</h2>
-    <p class="desc">Every IP that announced at least one transaction before any other peer, ranked by flagged transactions. Geo and network type come from the offline table; nothing is looked up online.</p>
-    <div class="scroll"><table><thead><tr><th>IP</th><th>Network</th><th>Country</th><th>ASN</th><th class="n">Transactions</th><th class="n">Flagged</th><th class="n">Peak risk</th><th class="n">Mean confidence</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-})();
-
-/* ---------- evaluation ---------- */
-(function renderEvaluation() {
-  const e = DATA.evaluation, m = DATA.meta.model, card = DATA.model_card;
-  const bar = (v, c) => `<div class="databar"><div class="t"><div style="width:${(v * 100).toFixed(1)}%;--c:${c}"></div></div><span>${v.toFixed(3)}</span></div>`;
-  let html = "";
-  if (e) {
-    const rows = Object.values(e.detectors).map((d) => `<tr><td>${esc(d.label)}</td><td>${bar(d.precision, "var(--series-1)")}</td><td>${bar(d.recall, "var(--series-2)")}</td>
-      <td class="n">${d.f1.toFixed(3)}</td><td class="n">${d.roc_auc == null ? "—" : d.roc_auc.toFixed(3)}</td><td class="n">${esc(d.tp)} / ${esc(d.fp)} / ${esc(d.fn)}</td></tr>`).join("");
-    const typ = e.typologies.map((t) => `<tr><td>${esc(t.typology)}</td><td class="n">${esc(t.flagged)}</td><td class="n">${esc(t.total)}</td><td class="n">${(t.rate * 100).toFixed(1)}%</td></tr>`).join("");
-    const conf = e.origin.by_confidence.map((b) => `<tr><td>${esc(b.bucket)}</td><td class="n">${esc(b.correct)}</td><td class="n">${esc(b.total)}</td><td class="n">${b.accuracy == null ? "—" : (b.accuracy * 100).toFixed(1) + "%"}</td></tr>`).join("");
-    const scen = e.scenarios.map((s) => `<tr><td>${esc(s.scenario)}</td><td class="n">${esc(s.in_best_case)} / ${esc(s.transactions)}</td><td>${esc(s.best_case)}</td></tr>`).join("");
-    html += `<div class="card"><h2>Detection against ground truth</h2>
-      <p class="desc">${esc(e.transactions)} simulated transactions, ${esc(e.positives)} of them part of a laundering scenario. This capture was used for neither training nor tuning. Results on simulated traffic show that the pipeline works; they do not predict accuracy on real traffic.</p>
-      <div class="legend"><span style="--c:var(--series-1)">precision</span><span style="--c:var(--series-2)">recall</span></div>
-      <div class="scroll"><table><thead><tr><th>Detector</th><th>Precision</th><th>Recall</th><th class="n">F1</th><th class="n">ROC-AUC</th><th class="n">TP / FP / FN</th></tr></thead><tbody>${rows}</tbody></table></div></div>
-      <div class="split" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
-        <div class="card"><h2>Flag rate by true typology</h2><p class="desc">“normal” is the false-positive rate.</p><table><thead><tr><th>Typology</th><th class="n">Flagged</th><th class="n">Total</th><th class="n">Rate</th></tr></thead><tbody>${typ}</tbody></table></div>
-        <div class="card"><h2>Origin attribution</h2><p class="desc">First-seen IP equals the true origin in ${(e.origin.accuracy * 100).toFixed(1)}% of transactions. By confidence:</p><table><thead><tr><th>Confidence</th><th class="n">Correct</th><th class="n">Total</th><th class="n">Accuracy</th></tr></thead><tbody>${conf}</tbody></table></div>
-        <div class="card"><h2>Operations recovered</h2><p class="desc">Share of each simulated operation grouped into one case.</p><table><thead><tr><th>Scenario</th><th class="n">In one case</th><th>Case</th></tr></thead><tbody>${scen}</tbody></table></div>
-      </div>`;
-  } else {
-    html += `<div class="card"><h2>Detection against ground truth</h2><p class="desc">No ground truth is available for this dataset, so accuracy cannot be measured here.</p></div>`;
-  }
-  const weights = card.evidence.map((w) => `<tr><td>${esc(w.label)}</td><td class="n">${(w.weight >= 0 ? "+" : "") + w.weight.toFixed(3)}</td><td class="n">${w.background.toFixed(3)}</td></tr>`).join("");
-  html += `<div class="card"><h2>Model card</h2>
-    <p class="desc">${esc(m.architecture)}. Trained on ${esc(m.training_data)}: ${esc(m.gnn_train_transactions)} transactions for the GNN, ${esc(m.fusion_train_transactions)} held-out transactions for risk fusion. Model file ${esc(m.file)}, SHA-256 <span class="mono hash">${esc(m.sha256)}</span>.</p>
-    <div class="scroll"><table><thead><tr><th>Evidence signal</th><th class="n">Weight (log-odds)</th><th class="n">Average in training traffic</th></tr></thead><tbody>${weights}</tbody></table></div></div>`;
-  $("panel-evaluation").innerHTML = html;
-})();
-
-/* ---------- method ---------- */
-(function renderMethod() {
-  const steps = [
-    ["Ingest", "Bulk CSV, JSON, JSON Lines and XML are read from disk. Network announcements and ledger records arrive as separate files and are joined on the transaction ID."],
-    ["Attribute the origin", "The peer that announced a transaction first is its most likely origin. Lead time, agreement between sensors and how often that peer merely relays give a calibrated confidence; weak attributions are reported as unresolved."],
-    ["Resolve entities", "Addresses spent together belong to one owner (common-input heuristic), except inside mixing rounds. Peeling chains, equal-output mixing and fan-out structures are traced on the money-flow graph."],
-    ["Score", "An Isolation Forest finds statistical outliers. A GraphSAGE network reads each transaction together with the transactions that fund and spend it. A logistic model fuses both with the network-layer evidence."],
-    ["Explain", "Because the fusion model is linear, each signal's Shapley contribution is exact. Every case lists what raised the score, what lowered it, and a hash of the record."],
-  ];
-  $("panel-method").innerHTML = `<div class="steps">` + steps.map(([t, d], i) => `<div class="card"><div class="num">STEP ${i + 1}</div><h2>${esc(t)}</h2><p class="desc" style="margin:0">${esc(d)}</p></div>`).join("") + `</div>
-    <div class="card" style="margin-top:16px"><h2>Limits</h2><p class="desc" style="margin:0">Models are trained on simulated traffic and must be retrained on labelled real captures before operational use. First-seen attribution needs sensors connected to many peers and cannot see through Tor or a VPN: it reports the exit, not the sender. Mixing is also used lawfully, so a flag is a reason to look, not a finding. Every output is an investigative lead that needs corroboration.</p></div>`;
-})();
-
-renderCaseList(null);
-if (DATA.cases.length) selectCase(DATA.cases[0].case_id);
-/* deep links: index.html#evaluation opens that tab */
-const wanted = document.querySelector(`.tab[data-panel="${CSS.escape(location.hash.slice(1))}"]`);
-if (wanted) wanted.click();
+/*__JS__*/
 </script>
 </body>
 </html>

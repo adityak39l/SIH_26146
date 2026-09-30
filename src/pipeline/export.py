@@ -11,14 +11,17 @@ from typing import Any, Dict
 
 from config.settings import BASE_DIR, DOCS_DIR
 
-TEMPLATE = BASE_DIR / "src" / "dashboard" / "template.html"
+DASHBOARD_DIR = BASE_DIR / "src" / "dashboard"
 PLACEHOLDER = "__VIGIL_DATA__"
 
 
 def render_dashboard(result: Dict[str, Any]) -> str:
     # "<" is escaped so that no value from an ingested file can close the script element.
     payload = json.dumps(result, separators=(",", ":")).replace("<", "\\u003c")
-    return TEMPLATE.read_text(encoding="utf-8").replace(PLACEHOLDER, payload)
+    html = (DASHBOARD_DIR / "template.html").read_text(encoding="utf-8")
+    html = html.replace("/*__CSS__*/", (DASHBOARD_DIR / "console.css").read_text(encoding="utf-8"))
+    html = html.replace("/*__JS__*/", (DASHBOARD_DIR / "console.js").read_text(encoding="utf-8"))
+    return html.replace(PLACEHOLDER, payload)
 
 
 def export(out_file: Path = DOCS_DIR / "index.html", source=None) -> Path:

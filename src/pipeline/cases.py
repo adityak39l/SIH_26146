@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 import numpy as np
 
 from config.settings import MEDIUM_RISK_THRESHOLD, ORIGIN_MIN_CONFIDENCE, PEEL_MIN_HOPS
+from src.ingestion.geo_enricher import CATEGORY_LABELS
 from src.ml.features import TX_FEATURE_LABELS, TX_FEATURES
 from src.ml.xai_explainer import DISCLAIMER, ForensicLeadExplainer, evidence_hash, severity_for
 
@@ -254,3 +255,42 @@ def origin_table(prep, scores, limit: int = 40) -> List[Dict[str, Any]]:
         })
     rows.sort(key=lambda r: (-r["flagged"], -r["max_risk"], -r["transactions"], r["ip"]))
     return rows[:limit]
+
+
+def overview(prep, scores, cases: List[Dict[str, Any]], bins: int = 36) -> Dict[str, Any]:
+    """Capture-wide aggregates for the console's overview charts."""
+    txs = prep.transactions
+    flagged = scores.risk >= MEDIUM_RISK_THRESHOLD
+    if not txs:
+        return {"timeline": [], "bucket_s": 0, "networks": [], "typologies": []}
+
+    start, end = txs[0]["_ts"], txs[-1]["_ts"]
+    width = max((end - start) / bins, 1.0)
+    timeline = [{"t": start + i * width, "total": 0, "flagged": 0} for i in range(bins)]
+    networks: Dict[str, List[int]] = defaultdict(lambda: [0, 0])
+    for idx, tx in enumerate(txs):
+        bucket = timeline[min(int((tx["_ts"] - start) / width), bins - 1)]
+        bucket["total"] += 1
+        bucket["flagged"] += int(flagged[idx])
+        category = tx.get("_origin_category", "unresolved")
+        networks[category][0] += 1
+        networks[category][1] += int(flagged[idx])
+
+    labels = dict(CATEGORY_LABELS, unresolved="Origin unresolved")
+    by_tag: Dict[str, List[float]] = defaultdict(lambda: [0, 0, 0.0])
+    for case in cases:
+        for tag in case["typology_tags"]:
+            by_tag[tag][0] += 1
+            by_tag[tag][1] += case["tx_count"]
+            by_tag[tag][2] += case["inflow_btc"]
+
+    return {
+        "timeline": timeline,
+        "bucket_s": round(width, 1),
+        "networks": sorted(
+            ({"category": c, "label": labels.get(c, c), "total": t, "flagged": f}
+             for c, (t, f) in networks.items()), key=lambda r: (-r["flagged"], -r["total"])),
+        "typologies": sorted(
+            ({"typology": tag, "cases": n, "transactions": t, "inflow_btc": round(b, 8)}
+             for tag, (n, t, b) in by_tag.items()), key=lambda r: (-r["cases"], r["typology"])),
+    }

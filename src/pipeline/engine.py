@@ -168,7 +168,7 @@ def load_models(model_file: Path = MODEL_FILE, verbose: bool = False) -> ModelBu
 
 def analyze(source=None, ground_truth: Optional[Path] = None, verbose: bool = False) -> Dict[str, Any]:
     """Runs the full offline pipeline and returns a JSON-serialisable result."""
-    from src.pipeline.cases import build_cases, origin_table
+    from src.pipeline.cases import build_cases, origin_table, overview
     from src.pipeline.evaluate import evaluate
 
     started = time.time()
@@ -231,6 +231,7 @@ def analyze(source=None, ground_truth: Optional[Path] = None, verbose: bool = Fa
         "cases": cases,
         "leads": leads,
         "origins": origin_table(prep, scores),
+        "overview": overview(prep, scores, cases),
         "model_card": {
             "evidence": [
                 {"key": key, "label": label, "absent_label": ABSENT_LABELS.get(key),
