@@ -255,6 +255,48 @@ details[open] > summary { margin-bottom: 12px; }
 .callout { border-left: 3px solid var(--warning); background: var(--inset); border-radius: 10px; padding: 12px 14px; }
 .foot { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--grid); color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; gap: 6px 18px; }
 
+/* ---------- live demo ---------- */
+.live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #4ade80; margin-right: 6px; vertical-align: 1px; }
+.live-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: center; }
+@media (max-width: 760px) { .live-head { grid-template-columns: minmax(0, 1fr); } }
+.live-ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn.big { padding: 10px 18px; font-size: 15px; font-weight: 600; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--brand-3)); box-shadow: 0 8px 20px -10px var(--accent); }
+.live-bar { height: 5px; border-radius: 3px; background: var(--grid); margin: 14px 0; overflow: hidden; }
+.live-bar div { height: 100%; width: 0; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--brand-3)); transition: width 0.1s linear; }
+.live-stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 1000px) { .live-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .live-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.lstat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; box-shadow: var(--shadow); }
+.lstat span { display: block; font-size: 12px; color: var(--ink2); }
+.lstat b { font-size: 24px; font-weight: 650; line-height: 1.25; font-variant-numeric: tabular-nums; }
+.lstat b.mono { font-size: 20px; }
+.lstat.alert { border-color: var(--critical); }
+.feed { height: 380px; overflow-y: auto; border: 1px solid var(--grid); border-radius: 10px; }
+.feed .empty, .alerts .empty { border: 0; margin: 40px 16px; }
+.feed-row { display: grid; grid-template-columns: 64px 108px minmax(0, 1fr) 96px 86px 44px; gap: 8px; align-items: center;
+  padding: 6px 10px; border-bottom: 1px solid var(--grid); font-size: 12.5px; animation: slide 0.25s ease-out; }
+.feed-row .net { color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.feed-row .n { text-align: right; font-variant-numeric: tabular-nums; }
+.feed-row.hot { background: var(--accent-wash); }
+@media (max-width: 640px) { .feed-row { grid-template-columns: 58px minmax(0, 1fr) 80px 40px; } .feed-row > :nth-child(2), .feed-row .n:nth-child(4) { display: none; } }
+@keyframes slide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.alerts { height: 380px; overflow-y: auto; display: grid; gap: 8px; align-content: start; }
+.alert-card { display: grid; gap: 4px; border: 1px solid var(--border); border-left: 4px solid var(--c); border-radius: 10px; padding: 10px 12px; background: var(--surface); }
+.alert-card:hover { background: var(--wash); }
+.alert-card.fresh { animation: flash 0.9s ease-out; }
+.alert-card .row { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+@keyframes flash { from { background: var(--accent-wash); transform: scale(1.015); } to { background: var(--surface); transform: none; } }
+@media (prefers-reduced-motion: reduce) { .feed-row, .alert-card.fresh { animation: none; } }
+.sim-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .sim-grid { grid-template-columns: minmax(0, 1fr); } }
+.sim-controls { display: grid; gap: 14px; }
+.ctl { display: grid; gap: 6px; font-size: 13px; }
+.ctl > span { color: var(--ink2); } .ctl > span b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.ctl input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
+.sim-out { background: var(--inset); border-radius: 12px; padding: 16px; }
+.sim-score { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+
 /* ---------- overlays ---------- */
 #tip { position: fixed; pointer-events: none; z-index: 20; background: var(--surface); color: var(--ink); border: 1px solid var(--border);
   border-radius: 9px; padding: 8px 11px; font-size: 12.5px; box-shadow: 0 6px 22px rgba(0,0,0,0.2); max-width: 320px; display: none; }

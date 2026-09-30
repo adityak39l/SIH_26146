@@ -62,6 +62,23 @@ class DemoPipelineTests(unittest.TestCase):
             for a, b, _ in case["edges"]:
                 self.assertLess(a, b)  # money only flows forward in time
 
+    def test_replay_stream_adds_up_to_the_summary(self):
+        stream, summary = self.result["stream"], self.result["summary"]
+        self.assertEqual(len(stream), summary["transactions"])
+        self.assertEqual(sum(x["o"] for x in stream), summary["observations"])
+        self.assertEqual(sum(x["r"] >= MEDIUM_RISK_THRESHOLD for x in stream), summary["flagged_transactions"])
+        self.assertEqual(len({x["c"] for x in stream if x["c"]}), summary["cases"])
+        self.assertEqual([x["t"] for x in stream], sorted(x["t"] for x in stream))
+
+    def test_simulator_inputs_reproduce_the_model(self):
+        # The console recomputes risk as sigmoid(bias + sum(weight * value)); check that
+        # the exported numbers give back the pipeline's own score for a real transaction.
+        import math
+        card = self.result["model_card"]
+        tx = self.result["cases"][0]["transactions"][0]
+        logit = card["bias"] + sum(e["weight"] * v for e, v in zip(card["evidence"], tx["evidence"]))
+        self.assertAlmostEqual(100 / (1 + math.exp(-logit)), tx["risk_score"], delta=0.5)
+
     def test_result_is_json_and_renders(self):
         html = render_dashboard(json.loads(json.dumps(self.result)))
         self.assertNotIn("__VIGIL_DATA__", html)

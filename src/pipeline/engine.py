@@ -8,8 +8,10 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from config.settings import (
+    CRITICAL_RISK_THRESHOLD,
     DEMO_DATA_DIR,
     DEMO_GROUND_TRUTH,
+    HIGH_RISK_THRESHOLD,
     MEDIUM_RISK_THRESHOLD,
     MODEL_FILE,
     ORIGIN_MIN_CONFIDENCE,
@@ -168,7 +170,7 @@ def load_models(model_file: Path = MODEL_FILE, verbose: bool = False) -> ModelBu
 
 def analyze(source=None, ground_truth: Optional[Path] = None, verbose: bool = False) -> Dict[str, Any]:
     """Runs the full offline pipeline and returns a JSON-serialisable result."""
-    from src.pipeline.cases import build_cases, origin_table, overview
+    from src.pipeline.cases import build_cases, origin_table, overview, stream
     from src.pipeline.evaluate import evaluate
 
     started = time.time()
@@ -232,6 +234,7 @@ def analyze(source=None, ground_truth: Optional[Path] = None, verbose: bool = Fa
         "leads": leads,
         "origins": origin_table(prep, scores),
         "overview": overview(prep, scores, cases),
+        "stream": stream(prep, scores, cases),
         "model_card": {
             "evidence": [
                 {"key": key, "label": label, "absent_label": ABSENT_LABELS.get(key),
@@ -239,8 +242,10 @@ def analyze(source=None, ground_truth: Optional[Path] = None, verbose: bool = Fa
                 for (key, label), w, b in zip(EVIDENCE, fusion.weights, fusion.background)
             ],
             "base_value_log_odds": round(fusion.base_value, 4),
+            "bias": round(fusion.bias, 4),
             "tx_features": TX_FEATURES,
-            "thresholds": {"medium": MEDIUM_RISK_THRESHOLD, "peel_min_hops": PEEL_MIN_HOPS},
+            "thresholds": {"critical": CRITICAL_RISK_THRESHOLD, "high": HIGH_RISK_THRESHOLD,
+                           "medium": MEDIUM_RISK_THRESHOLD, "peel_min_hops": PEEL_MIN_HOPS},
         },
         "evaluation": None,
     }

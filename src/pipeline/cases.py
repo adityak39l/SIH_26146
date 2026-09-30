@@ -294,3 +294,27 @@ def overview(prep, scores, cases: List[Dict[str, Any]], bins: int = 36) -> Dict[
             ({"typology": tag, "cases": n, "transactions": t, "inflow_btc": round(b, 8)}
              for tag, (n, t, b) in by_tag.items()), key=lambda r: (-r["cases"], r["typology"])),
     }
+
+
+def stream(prep, scores, cases: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Every transaction in arrival order, in compact form, for the console's capture
+    replay: time, short id, value, risk, origin network and the case it belongs to.
+    """
+    case_of = {row["txid"]: case["case_id"] for case in cases for row in case["transactions"]}
+    labels = dict(CATEGORY_LABELS, unresolved="Origin unresolved")
+    rows = []
+    for idx, tx in enumerate(prep.transactions):
+        origin = tx.get("_origin", {})
+        category = tx.get("_origin_category", "unresolved")
+        rows.append({
+            "t": tx["_ts"],
+            "id": tx["txid"][:12],
+            "v": round(sum(tx["input_amounts"]), 4),
+            "r": round(float(scores.risk[idx]), 1),
+            "n": labels.get(category, category),
+            "ip": origin.get("origin_ip") if origin.get("resolved") else None,
+            "o": origin.get("peer_hop_count", 0),
+            "c": case_of.get(tx["txid"]),
+        })
+    return rows

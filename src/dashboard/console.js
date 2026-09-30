@@ -132,7 +132,7 @@ function factorRows(factors) {
         <div class="eyebrow">Capture summary</div>
         <h1>${esc(headline)}</h1>
         <p>${esc(btc(inflow))} moved through the flagged operations. Each case joins what the network saw (who announced it, from where) with what the ledger recorded (which wallets, how much), and explains its score signal by signal.</p>
-        <div class="actions"><a class="btn primary" href="#cases">Review cases →</a><a class="btn" href="#evaluation">How accurate is it?</a><a class="btn" href="#method">How it works</a></div>
+        <div class="actions"><a class="btn primary" href="#live" data-run="1">▶ Run live demo</a><a class="btn" href="#cases">Review cases →</a><a class="btn" href="#evaluation">How accurate is it?</a><a class="btn" href="#method">How it works</a></div>
         <div class="ran"><i aria-hidden="true">✓</i>Analysis complete: ${num(S.transactions)} transactions processed in ${esc(DATA.meta.runtime_s)} s, all 5 stages ran</div>
       </div>
       <div class="sev-tiles">
@@ -156,6 +156,7 @@ function factorRows(factors) {
   $("panel-overview").querySelectorAll("[data-sev]").forEach((b) => b.addEventListener("click", () => { state.sev = b.dataset.sev; location.hash = "#cases"; renderCaseList(); }));
 })();
 document.addEventListener("click", (ev) => { const row = ev.target.closest("[data-go]"); if (row) location.hash = row.dataset.go; });
+document.addEventListener("click", (ev) => { if (ev.target.closest("[data-run]")) setTimeout(() => { if (!live.playing) $("lv-play").click(); }, 150); });
 document.addEventListener("keydown", (ev) => { if (ev.key === "Enter" && ev.target.dataset && ev.target.dataset.go) location.hash = ev.target.dataset.go; });
 
 /* ---------- cases: list ---------- */

@@ -20,7 +20,8 @@ def render_dashboard(result: Dict[str, Any]) -> str:
     payload = json.dumps(result, separators=(",", ":")).replace("<", "\\u003c")
     html = (DASHBOARD_DIR / "template.html").read_text(encoding="utf-8")
     html = html.replace("/*__CSS__*/", (DASHBOARD_DIR / "console.css").read_text(encoding="utf-8"))
-    html = html.replace("/*__JS__*/", (DASHBOARD_DIR / "console.js").read_text(encoding="utf-8"))
+    script = "\n".join((DASHBOARD_DIR / name).read_text(encoding="utf-8") for name in ("console.js", "live.js"))
+    html = html.replace("/*__JS__*/", script)
     return html.replace(PLACEHOLDER, payload)
 
 
